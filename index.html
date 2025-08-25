@@ -1,8 +1,10 @@
-<!DOCTYPE html><html lang="es">
+<!DOCTYPE html>
+<html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Etiqueta de Tarima – ALDISAN-KSK</title>
-  <style>
+<meta charset="UTF-8" />
+<title>ALDISAN-KSK – Generador de Etiquetas</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
 :root{ --carta-w:21.59cm; --carta-h:27.94cm; }
 *{ box-sizing:border-box }
 body{
@@ -20,77 +22,149 @@ input.mono{ font-family:ui-monospace,Consolas,monospace }
 .inline{ display:flex; gap:12px; align-items:center; flex-wrap:wrap }
 .muted{ color:#9bbbd4; font-size:12px }
 .row{ display:grid; grid-template-columns:1fr 1fr; gap:12px }
-@media (max-width:720px){ .row{ grid-template-columns:1fr } }.etiqueta{ width:var(--carta-w); height:var(--carta-h); background:#fff; color:#000; border:2px solid #000; padding:32px; display:none; position:relative; overflow:hidden } .etiqueta .titulo{ text-align:center; font-size:32px; font-weight:900; color:#003366; margin-bottom:12px } .grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px 18px } .campo{ font-size:18px; line-height:1.25 } .campo b{ display:inline-block; min-width:190px } .qrbox{ position:absolute; right:32px; bottom:32px; width:180px; height:180px; border:1px solid #000; display:flex; align-items:center; justify-content:center; background:#fff } .barbox{ position:absolute; left:32px; bottom:32px; width:60%; max-width:520px; border:1px solid #000; background:#fff; padding:8px } #barcode{ width:100%; height:120px }
+@media (max-width:720px){ .row{ grid-template-columns:1fr } }
 
-@page{ size: letter; margin: 0 } @media print{ body{ background:#fff } body *{ visibility:hidden } .etiqueta, .etiqueta *{ visibility:visible } .etiqueta{ position:absolute; left:0; top:0; width:21.59cm; height:27.94cm; transform:scale(0.965); transform-origin:top left; page-break-after:avoid; page-break-inside:avoid } } </style>
+/* ETIQUETA tamaño carta */
+.etiqueta{
+  width:var(--carta-w); height:var(--carta-h);
+  background:#fff; color:#000; border:2px solid #000; padding:32px;
+  display:none; position:relative; overflow:hidden;
+}
+.etiqueta .titulo{ text-align:center; font-size:32px; font-weight:900; color:#003366; margin-bottom:12px }
+.grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px 18px }
+.campo{ font-size:18px; line-height:1.25 }
+.campo b{ display:inline-block; min-width:190px }
+.qrbox{ position:absolute; right:32px; bottom:32px; width:180px; height:180px; border:1px solid #000; display:flex; align-items:center; justify-content:center; background:#fff }
+.barbox{ position:absolute; left:32px; bottom:32px; width:60%; max-width:520px; border:1px solid #000; background:#fff; padding:8px }
+#barcode{ width:100%; height:120px }
 
+/* FORZAR 1 HOJA CARTA AL IMPRIMIR */
+@page{ size: letter; margin: 0 }
+@media print{
+  body{ background:#fff }
+  body *{ visibility:hidden }
+  .etiqueta, .etiqueta *{ visibility:visible }
+  .etiqueta{
+    position:absolute; left:0; top:0;
+    width:21.59cm; height:27.94cm;
+    transform: scale(0.90);               /* escala más baja para asegurar 1 sola hoja */
+    transform-origin: top left;
+    page-break-after: avoid; page-break-inside: avoid;
+    overflow: hidden;
+  }
+}
+</style>
 </head>
 <body>
-  <div class="wrap">
-    <h1>ALDISAN-KSK – Generador de Etiquetas</h1>
-    <div class="formulario">
-      <!-- formulario aquí -->
-      <label for="cad_dia">Caducidad</label>
-      <div class="row">
-        <select id="cad_dia"></select>
-        <select id="cad_mes"></select>
-        <select id="cad_anio"></select>
+<div class="wrap">
+  <h1>ALDISAN-KSK – Generador de Etiquetas</h1>
+
+  <div class="formulario">
+    <label>Picker (usuario)</label>
+    <select id="picker" onchange="generarEtiqueta()">
+      <option>Victor</option><option>Edson</option><option>Irving</option>
+    </select>
+
+    <label>Producto</label>
+    <select id="producto" onchange="rellenarProducto()">
+      <option value="">-- Selecciona un producto --</option>
+      <option value="10554" data-desc="SERUM CORPORAL HIDRATANTE 320 ML." data-pieza="48" data-cajas="120">10554 - SERUM HIDRATANTE</option>
+      <option value="10555" data-desc="SERUM CORPORAL ACLARANTE 320 ML." data-pieza="48" data-cajas="120">10555 - SERUM ACLARANTE</option>
+      <option value="10556" data-desc="SERUM CORPORAL REAFIRMANTE 320 ML." data-pieza="48" data-cajas="120">10556 - SERUM REAFIRMANTE</option>
+      <option value="10557" data-desc="VITACILINA SUEROX CORPORAL DE 300ML" data-pieza="48" data-cajas="120">10557 - VITACILINA SUEROX</option>
+      <option value="10558" data-desc="EMULSION CORPORAL DERMATOLOGICA ATOPICALM 400ML" data-pieza="12" data-cajas="60">10558 - EMULSION ATOPICALM</option>
+      <option value="10560" data-desc="EMULSION DIA BE CALM 400ML" data-pieza="12" data-cajas="60">10560 - EMULSION BE CALM</option>
+      <option value="10562" data-desc="EMULSION DERMAN PS CALM" data-pieza="12" data-cajas="60">10562 - EMULSION DERMAN</option>
+      <option value="10563" data-desc="CREMA DERMAN PS CALM" data-pieza="12" data-cajas="80">10563 - CREMA DERMAN</option>
+      <option value="10561" data-desc="CREMA CORPORAL DERMATOLOGICA DB CALM 300G" data-pieza="12" data-cajas="80">10561 - CREMA DB CALM</option>
+      <option value="10559" data-desc="CREMA CORPORAL DERMATOLOGICA ATOPI CALM 300G" data-pieza="12" data-cajas="80">10559 - CREMA ATOPI CALM</option>
+      <option value="10518" data-desc="ROCAINOL CREMA ACCION TERMICA 150G" data-pieza="12" data-cajas="1">10518 - ROCAINOL TERMICA</option>
+    </select>
+
+    <!-- Predicción de Lote -->
+    <div id="loteModeWrap" style="display:none;margin-top:6px">
+      <label>Modo de Lote</label>
+      <div class="inline">
+        <label class="inline"><input type="radio" name="loteMode" id="modeAuto" value="auto" onchange="updateLoteControls()"> Auto (WGH0 + 4 dígitos)</label>
+        <label class="inline"><input type="radio" name="loteMode" id="modeManual" value="manual" onchange="updateLoteControls()"> Manual</label>
       </div>
-      <button class="btn" onclick="printEtiqueta()">Imprimir en tamaño carta</button>
+      <div id="autoLoteGroup" class="row" style="margin-top:8px;display:none">
+        <div>
+          <label>Últimos 4 dígitos</label>
+          <input id="last4" maxlength="4" class="mono" placeholder="Ej. 6037" oninput="applyAutoLote()">
+        </div>
+        <div>
+          <div class="muted">Prefijo aplicado automáticamente:</div>
+          <input id="previewAuto" class="mono" readonly>
+        </div>
+      </div>
     </div>
-  </div>  <div class="etiqueta" id="etiqueta">
-    <div class="titulo">ALDISAN-KSK</div>
-    <div class="grid">
-      <div class="campo"><b>Picker:</b> <span id="e_picker"></span></div>
-      <div class="campo"><b>Producto:</b> <span id="e_producto"></span></div>
-      <div class="campo"><b>Código:</b> <span id="e_codigo"></span></div>
-      <div class="campo"><b>Descripción:</b> <span id="e_descripcion"></span></div>
-      <div class="campo"><b>Cajas por Tarima:</b> <span id="e_cajas"></span></div>
-      <div class="campo"><b>Pz por Caja:</b> <span id="e_pieza"></span></div>
-      <div class="campo"><b>Pz por Tarima:</b> <span id="e_pz"></span></div>
-      <div class="campo"><b>Lote:</b> <span id="e_lote"></span></div>
-      <div class="campo"><b>Caducidad:</b> <span id="e_caducidad"></span></div>
-      <div class="campo"><b>Fecha Maquila:</b> <span id="e_fecha"></span></div>
+
+    <div class="row">
+      <div><label>Código de Producto</label><input id="codigo" readonly class="mono"></div>
+      <div><label>Cajas por Tarima</label><input id="cajas" readonly class="mono"></div>
+      <div><label>Pz por Caja</label><input id="pieza" readonly class="mono"></div>
+      <div><label>Pz por Tarima</label><input id="pz" readonly class="mono"></div>
     </div>
-    <div class="qrbox"><div id="qrcode"></div></div>
-  </div>  <script>
-    function poblarSelects(){
-      const diaSel=document.getElementById('cad_dia');
-      const mesSel=document.getElementById('cad_mes');
-      const anioSel=document.getElementById('cad_anio');
-      
-      diaSel.innerHTML='<option value="">Día</option>';
-      for(let d=1; d<=31; d++){ diaSel.innerHTML+=`<option value="${d}">${d}</option>`; }
 
-      mesSel.innerHTML='<option value="">Mes</option>';
-      for(let m=1; m<=12; m++){ mesSel.innerHTML+=`<option value="${m}">${m}</option>`; }
+    <label>Total de Piezas</label>
+    <input id="totalPiezas" readonly class="mono">
 
-      const yearNow=new Date().getFullYear();
-      anioSel.innerHTML='<option value="">Año</option>';
-      for(let y=yearNow; y<=yearNow+15; y++){ anioSel.innerHTML+=`<option value="${y}">${y}</option>`; }
-    }
+    <label>Descripción</label><input id="descripcion" readonly>
 
-    function generarEtiqueta(){
-      const dia=document.getElementById('cad_dia').value;
-      const mes=document.getElementById('cad_mes').value;
-      const anio=document.getElementById('cad_anio').value;
-      let cadTxt='';
-      if(dia && mes && anio){ cadTxt=`${anio}-${mes.padStart(2,'0')}-${dia.padStart(2,'0')}`; }
-      document.getElementById('e_caducidad').textContent=cadTxt;
+    <label>Lote</label>
+    <input id="lote" class="mono" oninput="generarEtiqueta()">
 
-      const hoy=new Date();
-      document.getElementById('e_fecha').textContent = hoy.toLocaleDateString('es-MX',{year:'numeric',month:'2-digit',day:'2-digit'});
-      document.getElementById('etiqueta').style.display='block';
-    }
+    <label>Caducidad</label>
+    <div class="row">
+      <select id="cad_dia" onchange="generarEtiqueta()"></select>
+      <select id="cad_mes" onchange="generarEtiqueta()"></select>
+      <select id="cad_anio" onchange="generarEtiqueta()"></select>
+    </div>
 
-    function printEtiqueta(){
-      generarEtiqueta();
-      window.print();
-    }
+    <div class="inline">
+      <button class="btn" onclick="printWithUID()">Imprimir en tamaño carta</button>
+      <button class="btn" onclick="exportarPDF()">Exportar a PDF</button>
+    </div>
+  </div>
+</div>
 
-    window.addEventListener('DOMContentLoaded',()=>{
-      poblarSelects();
-      generarEtiqueta();
-    });
-  </script></body>
-</html>
+<!-- ETIQUETA -->
+<div class="etiqueta" id="etiqueta">
+  <div class="titulo">ALDISAN-KSK</div>
+  <div class="grid">
+    <div class="campo"><b>Picker:</b> <span id="e_picker"></span></div>
+    <div class="campo"><b>Producto:</b> <span id="e_producto"></span></div>
+    <div class="campo"><b>Código:</b> <span id="e_codigo"></span></div>
+    <div class="campo"><b>Descripción:</b> <span id="e_descripcion"></span></div>
+    <div class="campo"><b>Cajas por Tarima:</b> <span id="e_cajas"></span></div>
+    <div class="campo"><b>Pz por Caja:</b> <span id="e_pieza"></span></div>
+    <div class="campo"><b>Pz por Tarima:</b> <span id="e_pz"></span></div>
+    <div class="campo"><b>Total Piezas:</b> <span id="e_totalPiezas"></span></div>
+    <div class="campo"><b>Lote:</b> <span id="e_lote"></span></div>
+    <div class="campo"><b>Caducidad:</b> <span id="e_caducidad"></span></div>
+    <div class="campo"><b>Fecha Maquila:</b> <span id="e_fecha"></span></div>
+  </div>
+  <div class="qrbox"><div id="qrcode"></div></div>
+  <div class="barbox"><svg id="barcode"></svg></div>
+</div>
+
+<!-- Librerías -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+
+<script>
+/* ===== Config ===== */
+const wghProducts = new Set(['10558','10559','10560','10561','10562','10563']);
+const digitsOnly = s => (s||'').replace(/\D+/g,'');
+
+/* ===== Autollenado ===== */
+function rellenarProducto(){
+  const sel = document.getElementById('producto');
+  const opt = sel.options[sel.selectedIndex] || {};
+  const piezas = parseInt(opt.getAttribute('data-pieza'))||0;
+  const cajas  = parseInt(opt.getAttribute('data-cajas'))||0;
+  const pztar  = piezas * cajas;
+
+  document.get
