@@ -1,383 +1,111 @@
-<!DOCTYPE html>
-<html lang="es">
+<!DOCTYPE html><html lang="es">
 <head>
-<meta charset="UTF-8" />
-<title>Etiqueta de Tarima – ALDISAN-KSK</title>
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<style>
-:root{ --carta-w:21.59cm; --carta-h:27.94cm; }
-*{ box-sizing:border-box }
-body{
-  font-family:'Segoe UI',Tahoma,Verdana,sans-serif;
-  margin:0; padding:0;
-  background:radial-gradient(circle at top,#0f2027,#203a43,#2c5364);
-  color:#e0e0e0; min-height:100vh; display:grid; place-items:center
-}
-.wrap{ width:min(100%,980px); padding:20px }
-h1{ text-align:center; color:#00e5ff; text-shadow:0 0 10px #00e5ff; margin:0 0 20px }
-.formulario{ background:rgba(20,20,30,.9); padding:20px; border-radius:16px; box-shadow:0 0 20px #00e5ff55 }
-label{ display:block; margin:12px 0 6px; font-weight:700; color:#90caf9 }
-select,input{ width:100%; padding:10px; border-radius:10px; border:none; background:#1c1f2b; color:#fff; font-size:15px }
-input[type=text].mono{ font-family:ui-monospace,Consolas,monospace }
-.btn{ display:inline-block; margin-top:14px; background:linear-gradient(90deg,#00e5ff,#2979ff); color:#000; font-weight:800; padding:12px 20px; border-radius:12px; border:none; cursor:pointer }
-.inline{ display:flex; gap:12px; align-items:center; flex-wrap:wrap }
-.muted{ color:#9bbbd4; font-size:12px }
-.row{ display:grid; grid-template-columns:1fr 1fr; gap:12px }
-@media (max-width:720px){ .row{ grid-template-columns:1fr } }
+  <meta charset="UTF-8">
+  <title>Etiqueta de Tarima – ALDISAN-KSK</title>
+  <style>
+    :root{ --carta-w:21.59cm; --carta-h:27.94cm; }
+    *{ box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0; padding: 0;
+      background: radial-gradient(circle at top, #0f2027, #203a43, #2c5364);
+      color: #e0e0e0;
+      min-height: 100vh; display: grid; place-items: center;
+    }
+    .wrap { width: min(100%, 980px); padding: 20px; }h1 { text-align: center; color: #00e5ff; text-shadow: 0 0 10px #00e5ff; margin: 0 0 20px; }
 
-/* Etiqueta a página completa (carta) */
-.etiqueta{
-  width:var(--carta-w); height:var(--carta-h);
-  background:#fff; color:#000; border:2px solid #000; padding:32px;
-  display:none; position:relative
-}
-.etiqueta .titulo{ text-align:center; font-size:32px; font-weight:900; color:#003366; margin-bottom:12px }
-.grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px 18px }
-.campo{ font-size:18px; line-height:1.25 }
-.campo b{ display:inline-block; min-width:190px }
+.formulario { background: rgba(20,20,30,.9); padding: 20px; border-radius: 16px; box-shadow: 0 0 20px #00e5ff55; }
+label { display:block; margin: 12px 0 6px; font-weight: 700; color:#90caf9; }
+select,input { width:100%; padding:10px; border-radius:10px; border:none; background:#1c1f2b; color:#fff; font-size:15px; }
+input[type="text"].mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
 
-/* QR y código de barras */
-.qrbox{
-  position:absolute; right:32px; bottom:32px; width:180px; height:180px;
-  border:1px solid #000; display:flex; align-items:center; justify-content:center; background:#fff
-}
-.barbox{
-  position:absolute; left:32px; bottom:32px; width:60%; max-width:520px;
-  border:1px solid #000; background:#fff; padding:8px
-}
-#barcode{ width:100%; height:120px }
+.btn { display:inline-block; margin-top:14px; background: linear-gradient(90deg,#00e5ff,#2979ff); color:#000; font-weight:800; padding:12px 20px; border-radius:12px; border:none; cursor:pointer; }
+.inline { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+.muted { color:#9bbbd4; font-size:12px; }
+.row { display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
+@media (max-width: 720px){ .row{ grid-template-columns:1fr; } }
 
-/* Impresión a tamaño carta completo */
-@media print{
-  body *{ visibility:hidden }
-  .etiqueta, .etiqueta *{ visibility:visible }
-  .etiqueta{ position:absolute; inset:0 auto auto 0 }
+.etiqueta { width: var(--carta-w); height: var(--carta-h); background:#fff; color:#000; border:2px solid #000; padding: 32px; display:none; position: relative; page-break-after: avoid; }
+.etiqueta .titulo { text-align:center; font-size: 32px; font-weight: 900; color:#003366; margin-bottom: 18px; }
+.grid { display:grid; grid-template-columns: 1fr 1fr; gap: 8px 18px; }
+.campo { font-size: 18px; line-height: 1.25; }
+.campo b { display:inline-block; min-width: 190px; }
+.qrbox { position:absolute; right: 32px; bottom: 32px; width: 180px; height: 180px; border:1px solid #000; display:flex; align-items:center; justify-content:center; }
+
+@media print { 
+  body *{ visibility:hidden; }
+  .etiqueta, .etiqueta *{ visibility:visible; }
+  .etiqueta{ position: absolute; inset: 0 auto auto 0; page-break-after: avoid; }
 }
-</style>
+
+  </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>ALDISAN-KSK – Generador de Etiquetas</h1>
-
-  <div class="formulario">
-    <label>Picker (usuario)</label>
-    <select id="picker" onchange="generarEtiqueta()">
-      <option>Victor</option><option>Edson</option><option>Irving</option>
-    </select>
-
-    <label>Producto</label>
-    <select id="producto" onchange="rellenarProducto()">
-      <option value="">-- Selecciona un producto --</option>
-      <option value="10554" data-desc="SERUM CORPORAL HIDRATANTE 320 ML." data-pieza="48" data-cajas="120">10554 - SERUM HIDRATANTE</option>
-      <option value="10555" data-desc="SERUM CORPORAL ACLARANTE 320 ML." data-pieza="48" data-cajas="120">10555 - SERUM ACLARANTE</option>
-      <option value="10556" data-desc="SERUM CORPORAL REAFIRMANTE 320 ML." data-pieza="48" data-cajas="120">10556 - SERUM REAFIRMANTE</option>
-      <option value="10557" data-desc="VITACILINA SUEROX CORPORAL DE 300ML" data-pieza="48" data-cajas="120">10557 - VITACILINA SUEROX</option>
-      <option value="10558" data-desc="EMULSION CORPORAL DERMATOLOGICA ATOPICALM 400ML" data-pieza="12" data-cajas="60">10558 - EMULSION ATOPICALM</option>
-      <option value="10560" data-desc="EMULSION DIA BE CALM 400ML" data-pieza="12" data-cajas="60">10560 - EMULSION BE CALM</option>
-      <option value="10562" data-desc="EMULSION DERMAN PS CALM" data-pieza="12" data-cajas="60">10562 - EMULSION DERMAN</option>
-      <option value="10563" data-desc="CREMA DERMAN PS CALM" data-pieza="12" data-cajas="80">10563 - CREMA DERMAN</option>
-      <option value="10561" data-desc="CREMA CORPORAL DERMATOLOGICA DB CALM 300G" data-pieza="12" data-cajas="80">10561 - CREMA DB CALM</option>
-      <option value="10559" data-desc="CREMA CORPORAL DERMATOLOGICA ATOPI CALM 300G" data-pieza="12" data-cajas="80">10559 - CREMA ATOPI CALM</option>
-      <option value="10518" data-desc="ROCAINOL CREMA ACCION TERMICA 150G" data-pieza="12" data-cajas="1">10518 - ROCAINOL TERMICA</option>
-    </select>
-
-    <!-- Predicción de Lote -->
-    <div id="loteModeWrap" style="display:none;margin-top:6px">
-      <label>Modo de Lote</label>
-      <div class="inline">
-        <label class="inline"><input type="radio" name="loteMode" id="modeAuto" value="auto"> Auto (WGH0 + 4 dígitos)</label>
-        <label class="inline"><input type="radio" name="loteMode" id="modeManual" value="manual"> Manual</label>
+  <div class="wrap">
+    <h1>ALDISAN-KSK – Generador de Etiquetas</h1>
+    <div class="formulario">
+      <!-- formulario aquí -->
+      <label for="cad_dia">Caducidad</label>
+      <div class="row">
+        <select id="cad_dia"></select>
+        <select id="cad_mes"></select>
+        <select id="cad_anio"></select>
       </div>
-      <div id="autoLoteGroup" class="row" style="margin-top:8px;display:none">
-        <div><label>Últimos 4 dígitos</label><input id="last4" maxlength="4" class="mono" placeholder="Ej. 5006"></div>
-        <div><div class="muted">Prefijo aplicado automáticamente:</div><input id="previewAuto" class="mono" readonly></div>
-      </div>
+      <button class="btn" onclick="printEtiqueta()">Imprimir en tamaño carta</button>
     </div>
-
-    <div class="row">
-      <div><label>Código de Producto</label><input id="codigo" readonly class="mono"></div>
-      <div><label>Cajas por Tarima</label><input id="cajas" readonly class="mono"></div>
-      <div><label>Pz por Caja</label><input id="pieza" readonly class="mono" aria-label="Piezas por Caja"></div>
-      <div><label>Pz por Tarima</label><input id="pz" readonly class="mono" aria-label="Piezas por Tarima"></div>
+  </div>  <div class="etiqueta" id="etiqueta">
+    <div class="titulo">ALDISAN-KSK</div>
+    <div class="grid">
+      <div class="campo"><b>Picker:</b> <span id="e_picker"></span></div>
+      <div class="campo"><b>Producto:</b> <span id="e_producto"></span></div>
+      <div class="campo"><b>Código:</b> <span id="e_codigo"></span></div>
+      <div class="campo"><b>Descripción:</b> <span id="e_descripcion"></span></div>
+      <div class="campo"><b>Cajas por Tarima:</b> <span id="e_cajas"></span></div>
+      <div class="campo"><b>Pz por Caja:</b> <span id="e_pieza"></span></div>
+      <div class="campo"><b>Pz por Tarima:</b> <span id="e_pz"></span></div>
+      <div class="campo"><b>Lote:</b> <span id="e_lote"></span></div>
+      <div class="campo"><b>Caducidad:</b> <span id="e_caducidad"></span></div>
+      <div class="campo"><b>Fecha Maquila:</b> <span id="e_fecha"></span></div>
     </div>
+    <div class="qrbox"><div id="qrcode"></div></div>
+  </div>  <script>
+    function poblarSelects(){
+      const diaSel=document.getElementById('cad_dia');
+      const mesSel=document.getElementById('cad_mes');
+      const anioSel=document.getElementById('cad_anio');
+      
+      diaSel.innerHTML='<option value="">Día</option>';
+      for(let d=1; d<=31; d++){ diaSel.innerHTML+=`<option value="${d}">${d}</option>`; }
 
-    <label>Total de Piezas</label>
-    <input id="totalPiezas" readonly class="mono">
+      mesSel.innerHTML='<option value="">Mes</option>';
+      for(let m=1; m<=12; m++){ mesSel.innerHTML+=`<option value="${m}">${m}</option>`; }
 
-    <label>Descripción</label><input id="descripcion" readonly>
-    <label>Lote</label><input id="lote" class="mono" oninput="generarEtiqueta()">
+      const yearNow=new Date().getFullYear();
+      anioSel.innerHTML='<option value="">Año</option>';
+      for(let y=yearNow; y<=yearNow+15; y++){ anioSel.innerHTML+=`<option value="${y}">${y}</option>`; }
+    }
 
-    <!-- Caducidad con selects (día/mes/año) -->
-    <label>Caducidad</label>
-    <div class="row">
-      <select id="cad_dia"></select>
-      <select id="cad_mes"></select>
-      <select id="cad_anio"></select>
-    </div>
+    function generarEtiqueta(){
+      const dia=document.getElementById('cad_dia').value;
+      const mes=document.getElementById('cad_mes').value;
+      const anio=document.getElementById('cad_anio').value;
+      let cadTxt='';
+      if(dia && mes && anio){ cadTxt=`${anio}-${mes.padStart(2,'0')}-${dia.padStart(2,'0')}`; }
+      document.getElementById('e_caducidad').textContent=cadTxt;
 
-    <div class="inline">
-      <button class="btn" onclick="printWithUID()">Imprimir en tamaño carta</button>
-      <button class="btn" onclick="exportarPDF()">Exportar a PDF</button>
-    </div>
-  </div>
-</div>
+      const hoy=new Date();
+      document.getElementById('e_fecha').textContent = hoy.toLocaleDateString('es-MX',{year:'numeric',month:'2-digit',day:'2-digit'});
+      document.getElementById('etiqueta').style.display='block';
+    }
 
-<!-- ETIQUETA A PÁGINA COMPLETA -->
-<div class="etiqueta" id="etiqueta">
-  <div class="titulo">ALDISAN-KSK</div>
-  <div class="grid">
-    <div class="campo"><b>Picker:</b> <span id="e_picker"></span></div>
-    <div class="campo"><b>Producto:</b> <span id="e_producto"></span></div>
-    <div class="campo"><b>Código:</b> <span id="e_codigo"></span></div>
-    <div class="campo"><b>Descripción:</b> <span id="e_descripcion"></span></div>
-    <div class="campo"><b>Cajas por Tarima:</b> <span id="e_cajas"></span></div>
-    <div class="campo"><b>Pz por Caja:</b> <span id="e_pieza"></span></div>
-    <div class="campo"><b>Pz por Tarima:</b> <span id="e_pz"></span></div>
-    <div class="campo"><b>Total Piezas:</b> <span id="e_totalPiezas"></span></div>
-    <div class="campo"><b>Lote:</b> <span id="e_lote"></span></div>
-    <div class="campo"><b>Caducidad:</b> <span id="e_caducidad"></span></div>
-    <div class="campo"><b>Fecha Maquila:</b> <span id="e_fecha"></span></div>
-  </div>
-  <div class="qrbox"><div id="qrcode"></div></div>
-  <div class="barbox"><svg id="barcode"></svg></div>
-</div>
+    function printEtiqueta(){
+      generarEtiqueta();
+      window.print();
+    }
 
-<!-- Librerías -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
-
-<script>
-/* ==========================
-   Configuración y helpers
-   ========================== */
-const wghProducts = new Set(['10558','10559','10560','10561','10562','10563']);
-function onlyDigits(s){ return (s||'').replace(/\\D+/g,''); }
-
-/* ==========================
-   Autollenado de producto
-   ========================== */
-window.rellenarProducto = function(){
-  const sel = document.getElementById('producto');
-  const opt = sel.options[sel.selectedIndex] || {};
-  const piezas = parseInt(opt.getAttribute('data-pieza'))||0;
-  const cajas  = parseInt(opt.getAttribute('data-cajas'))||0;
-  const pztar  = piezas * cajas;
-
-  document.getElementById('codigo').value = opt.value || '';
-  document.getElementById('descripcion').value = opt.getAttribute('data-desc') || '';
-  document.getElementById('cajas').value = cajas || '';
-  document.getElementById('pieza').value = piezas || '';
-  document.getElementById('pz').value = pztar || '';
-  document.getElementById('totalPiezas').value = pztar || '';
-
-  // activar/actualizar predicción de lote después de fijar el producto
-  updateLoteControls();
-
-  // refrescar etiqueta/QR
-  generarEtiqueta();
-};
-
-/* ==========================
-   Predicción de lote WGH0
-   ========================== */
-function show(el, yes){ el.style.display = yes ? '' : 'none'; }
-
-window.updateLoteControls = function(){
-  const val = document.getElementById('producto').value;
-  const wrap = document.getElementById('loteModeWrap');
-  const autoGroup = document.getElementById('autoLoteGroup');
-  const loteInput = document.getElementById('lote');
-  const modeAuto = document.getElementById('modeAuto');
-  const modeManual = document.getElementById('modeManual');
-
-  if(wghProducts.has(val)){
-    wrap.style.display='block';
-    // por defecto, Auto
-    if(!modeAuto.checked && !modeManual.checked){ modeAuto.checked = true; }
-    const isAuto = modeAuto.checked;
-    show(autoGroup, isAuto);
-    loteInput.readOnly = isAuto;
-    if(isAuto) applyAutoLote();
-  } else {
-    wrap.style.display='none';
-    document.getElementById('last4').value = '';
-    document.getElementById('previewAuto').value = '';
-    if(modeAuto) modeAuto.checked=false;
-    if(modeManual) modeManual.checked=true;
-    loteInput.readOnly=false;
-  }
-  generarEtiqueta();
-};
-
-// escuchar cambios de los radios/l4 también en móvil
-['modeAuto','modeManual','last4'].forEach(id=>{
-  document.addEventListener('change', (e)=>{ if(e.target && e.target.id===id){ if(id==='last4'){ applyAutoLote(); } else { updateLoteControls(); } } });
-  document.addEventListener('input', (e)=>{ if(e.target && e.target.id==='last4'){ applyAutoLote(); } });
-});
-
-window.applyAutoLote = function(){
-  const l4 = document.getElementById('last4');
-  const digits = onlyDigits(l4.value).slice(0,4);
-  l4.value = digits;
-  const lote = 'WGH0' + digits.padStart(4,'0');
-  document.getElementById('previewAuto').value = lote;
-  if(document.getElementById('modeAuto').checked){
-    document.getElementById('lote').value = lote;
-  }
-  generarEtiqueta();
-};
-
-/* ==========================
-   UID único (no visible)
-   ========================== */
-let currentUID = '';
-function nextCounterKey(){
-  const d=new Date();
-  const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), dd=String(d.getDate()).padStart(2,'0');
-  return `${y}${m}${dd}`;
-}
-function getNextFolio(){
-  const key = 'ksk_folio_counter_'+nextCounterKey();
-  let n = parseInt(localStorage.getItem(key)||'0',10); n+=1;
-  localStorage.setItem(key,String(n));
-  return `${nextCounterKey()}-${String(n).padStart(4,'0')}`;
-}
-function ensureUID(){ if(!currentUID){ currentUID = getNextFolio(); } }
-
-/* ==========================
-   Caducidad (día/mes/año)
-   ========================== */
-function poblarSelects(){
-  const diaSel=document.getElementById('cad_dia');
-  const mesSel=document.getElementById('cad_mes');
-  const anioSel=document.getElementById('cad_anio');
-
-  // repoblar SIEMPRE para evitar estados raros en móvil
-  diaSel.innerHTML='<option value=\"\">Día</option>';
-  for(let d=1; d<=31; d++){ diaSel.innerHTML+=`<option value=\"${d}\">${d}</option>`; }
-
-  mesSel.innerHTML='<option value=\"\">Mes</option>';
-  for(let m=1; m<=12; m++){ mesSel.innerHTML+=`<option value=\"${m}\">${m}</option>`; }
-
-  const yearNow=new Date().getFullYear();
-  anioSel.innerHTML='<option value=\"\">Año</option>';
-  for(let y=yearNow; y<=yearNow+15; y++){ anioSel.innerHTML+=`<option value=\"${y}\">${y}</option>`; }
-
-  // seleccionar fecha actual por defecto
-  const now=new Date();
-  diaSel.value=String(now.getDate());
-  mesSel.value=String(now.getMonth()+1);
-  anioSel.value=String(now.getFullYear());
-}
-
-/* ==========================
-   Payload (QR / Código de barras)
-   Orden: Picker, UID, Código, Descripción, Lote, Caducidad,
-          Cajas/Tarima, Pz/Caja, Pz/Tarima
-   ========================== */
-window.buildPayload = function(){
-  ensureUID();
-  const TAB='\\t', ENTER='\\r';
-  const picker = document.getElementById('picker').value;
-  const codigo = document.getElementById('codigo').value;
-  const desc   = document.getElementById('descripcion').value;
-  const lote   = document.getElementById('lote').value;
-  const cad    = document.getElementById('e_caducidad').textContent || '';
-  const cajas  = document.getElementById('cajas').value;
-  const pieza  = document.getElementById('pieza').value;
-  const pztar  = document.getElementById('pz').value;
-  return [picker, currentUID, codigo, desc, lote, cad, cajas, pieza, pztar].join(TAB) + ENTER;
-};
-
-/* ==========================
-   Generación de etiqueta + QR + Code128
-   ========================== */
-let qr;
-function makeQR(text){
-  const node = document.getElementById('qrcode');
-  node.innerHTML = '';
-  qr = new QRCode(node, { text, width:170, height:170, correctLevel: QRCode.CorrectLevel.M });
-}
-
-window.generarEtiqueta = function(){
-  // aseguramos selects poblados y con valor por defecto
-  poblarSelects();
-
-  const prodSel = document.getElementById('producto');
-  const prodTxt = prodSel.value ? prodSel.options[prodSel.selectedIndex].text : '';
-
-  const dia = document.getElementById('cad_dia').value;
-  const mes = document.getElementById('cad_mes').value;
-  const anio = document.getElementById('cad_anio').value;
-  let cadTxt = '';
-  if(dia && mes && anio){ cadTxt = `${anio}-${String(mes).padStart(2,'0')}-${String(dia).padStart(2,'0')}`; }
-
-  // Recalcular totales por si cambió pieza/cajas
-  const piezas = parseInt(document.getElementById('pieza').value||'0',10);
-  const cajas  = parseInt(document.getElementById('cajas').value||'0',10);
-  const pztar  = piezas*cajas;
-  document.getElementById('pz').value = pztar || '';
-  document.getElementById('totalPiezas').value = pztar || '';
-
-  // Pintar en etiqueta
-  document.getElementById('e_picker').textContent = document.getElementById('picker').value;
-  document.getElementById('e_producto').textContent = prodTxt;
-  document.getElementById('e_codigo').textContent = document.getElementById('codigo').value;
-  document.getElementById('e_descripcion').textContent = document.getElementById('descripcion').value;
-  document.getElementById('e_cajas').textContent = document.getElementById('cajas').value;
-  document.getElementById('e_pieza').textContent = document.getElementById('pieza').value;
-  document.getElementById('e_pz').textContent    = document.getElementById('pz').value;
-  document.getElementById('e_totalPiezas').textContent = document.getElementById('totalPiezas').value;
-  document.getElementById('e_lote').textContent = document.getElementById('lote').value;
-  document.getElementById('e_caducidad').textContent = cadTxt;
-
-  const hoy = new Date();
-  document.getElementById('e_fecha').textContent = hoy.toLocaleDateString('es-MX',{year:'numeric',month:'2-digit',day:'2-digit'});
-  document.getElementById('etiqueta').style.display='block';
-
-  const payload = buildPayload();
-  window._lastPayload = payload; // debug
-
-  // QR
-  makeQR(payload);
-  // Code128
-  try{
-    JsBarcode('#barcode', payload, { format:'CODE128', lineColor:'#000000', width:2, height:60, displayValue:false, margin:0 });
-  }catch(e){ document.getElementById('barcode').innerHTML=''; }
-};
-
-/* ==========================
-   Imprimir y Exportar PDF
-   ========================== */
-window.printWithUID = function(){ ensureUID(); generarEtiqueta(); window.print(); };
-
-window.exportarPDF = function(){
-  ensureUID(); generarEtiqueta();
-  const element = document.getElementById('etiqueta');
-  if(typeof html2pdf === 'undefined'){
-    alert('No se pudo cargar html2pdf. Verifica tu conexión.');
-    return;
-  }
-  const codigo = (document.getElementById('codigo').value||'PROD');
-  const fecha  = (document.getElementById('e_fecha').textContent||'FECHA').replaceAll('/','-');
-  const opt = {
-    margin: 0,
-    filename: `${codigo}_${fecha}.pdf`,
-    image: { type: 'jpeg', quality: 1 },
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: 'cm', format: 'letter', orientation: 'portrait' }
-  };
-  html2pdf().set(opt).from(element).save();
-};
-
-/* ==========================
-   Boot
-   ========================== */
-window.addEventListener('DOMContentLoaded', ()=>{
-  poblarSelects();
-  generarEtiqueta();
-});
-</script>
-</body>
+    window.addEventListener('DOMContentLoaded',()=>{
+      poblarSelects();
+      generarEtiqueta();
+    });
+  </script></body>
 </html>
