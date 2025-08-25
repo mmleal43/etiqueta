@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="es">
+<!DOCTYPE html>
+<html lang="es">
 <head>
 <meta charset="UTF-8">
 <title>Etiqueta de Tarima – ALDISAN-KSK</title>
@@ -22,12 +23,35 @@ input[type=text].mono{ font-family:ui-monospace,Consolas,monospace }
 .inline{ display:flex; gap:12px; align-items:center; flex-wrap:wrap }
 .muted{ color:#9bbbd4; font-size:12px }
 .row{ display:grid; grid-template-columns:1fr 1fr; gap:12px }
-@media (max-width:720px){ .row{ grid-template-columns:1fr } }/* Etiqueta a página completa (carta) */ .etiqueta{ width:var(--carta-w); height:var(--carta-h); background:#fff; color:#000; border:2px solid #000; padding:32px; display:none; position:relative } .etiqueta .titulo{ text-align:center; font-size:32px; font-weight:900; color:#003366; margin-bottom:12px } .grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px 18px } .campo{ font-size:18px; line-height:1.25 } .campo b{ display:inline-block; min-width:190px }
+@media (max-width:720px){ .row{ grid-template-columns:1fr } }
 
-.qrbox{ position:absolute; right:32px; bottom:32px; width:180px; height:180px; border:1px solid #000; display:flex; align-items:center; justify-content:center; background:#fff } .barbox{ position:absolute; left:32px; bottom:32px; width:60%; max-width:520px; border:1px solid #000; background:#fff; padding:8px } #barcode{ width:100%; height:120px }
+/* Etiqueta a página completa (carta) */
+.etiqueta{
+  width:var(--carta-w); height:var(--carta-h);
+  background:#fff; color:#000; border:2px solid #000; padding:32px;
+  display:none; position:relative
+}
+.etiqueta .titulo{ text-align:center; font-size:32px; font-weight:900; color:#003366; margin-bottom:12px }
+.grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px 18px }
+.campo{ font-size:18px; line-height:1.25 }
+.campo b{ display:inline-block; min-width:190px }
 
-@media print{ body *{ visibility:hidden } .etiqueta, .etiqueta *{ visibility:visible } .etiqueta{ position:absolute; inset:0 auto auto 0 } } </style>
+.qrbox{
+  position:absolute; right:32px; bottom:32px; width:180px; height:180px;
+  border:1px solid #000; display:flex; align-items:center; justify-content:center; background:#fff
+}
+.barbox{
+  position:absolute; left:32px; bottom:32px; width:60%; max-width:520px;
+  border:1px solid #000; background:#fff; padding:8px
+}
+#barcode{ width:100%; height:120px }
 
+@media print{
+  body *{ visibility:hidden }
+  .etiqueta, .etiqueta *{ visibility:visible }
+  .etiqueta{ position:absolute; inset:0 auto auto 0 }
+}
+</style>
 </head>
 <body>
 <div class="wrap">
@@ -36,49 +60,52 @@ input[type=text].mono{ font-family:ui-monospace,Consolas,monospace }
     <label>Picker (usuario)</label>
     <select id="picker" onchange="generarEtiqueta()">
       <option>Victor</option><option>Edson</option><option>Irving</option>
-    </select><label>Producto</label>
-<select id="producto" onchange="rellenarProducto();updateLoteControls();">
-  <option value="">-- Selecciona un producto --</option>
-  <option value="10554" data-desc="SERUM CORPORAL HIDRATANTE 320 ML." data-pieza="48" data-cajas="120">10554 - SERUM HIDRATANTE</option>
-  <option value="10555" data-desc="SERUM CORPORAL ACLARANTE 320 ML." data-pieza="48" data-cajas="120">10555 - SERUM ACLARANTE</option>
-  <option value="10556" data-desc="SERUM CORPORAL REAFIRMANTE 320 ML." data-pieza="48" data-cajas="120">10556 - SERUM REAFIRMANTE</option>
-  <option value="10557" data-desc="VITACILINA SUEROX CORPORAL DE 300ML" data-pieza="48" data-cajas="120">10557 - VITACILINA SUEROX</option>
-  <option value="10558" data-desc="EMULSION CORPORAL DERMATOLOGICA ATOPICALM 400ML" data-pieza="12" data-cajas="60">10558 - EMULSION ATOPICALM</option>
-  <option value="10560" data-desc="EMULSION DIA BE CALM 400ML" data-pieza="12" data-cajas="60">10560 - EMULSION BE CALM</option>
-  <option value="10562" data-desc="EMULSION DERMAN PS CALM" data-pieza="12" data-cajas="60">10562 - EMULSION DERMAN</option>
-  <option value="10563" data-desc="CREMA DERMAN PS CALM" data-pieza="12" data-cajas="80">10563 - CREMA DERMAN</option>
-  <option value="10561" data-desc="CREMA CORPORAL DERMATOLOGICA DB CALM 300G" data-pieza="12" data-cajas="80">10561 - CREMA DB CALM</option>
-  <option value="10559" data-desc="CREMA CORPORAL DERMATOLOGICA ATOPI CALM 300G" data-pieza="12" data-cajas="80">10559 - CREMA ATOPI CALM</option>
-  <option value="10518" data-desc="ROCAINOL CREMA ACCION TERMICA 150G" data-pieza="12" data-cajas="1">10518 - ROCAINOL TERMICA</option>
-</select>
+    </select>
 
-<div class="row">
-  <div><label>Código de Producto</label><input id="codigo" readonly class="mono"></div>
-  <div><label>Cajas por Tarima</label><input id="cajas" readonly class="mono"></div>
-  <div><label>Pz por Caja</label><input id="pieza" readonly class="mono"></div>
-  <div><label>Pz por Tarima</label><input id="pz" readonly class="mono"></div>
-</div>
+    <label>Producto</label>
+    <select id="producto" onchange="rellenarProducto();updateLoteControls();">
+      <option value="">-- Selecciona un producto --</option>
+      <option value="10554" data-desc="SERUM CORPORAL HIDRATANTE 320 ML." data-pieza="48" data-cajas="120">10554 - SERUM HIDRATANTE</option>
+      <option value="10555" data-desc="SERUM CORPORAL ACLARANTE 320 ML." data-pieza="48" data-cajas="120">10555 - SERUM ACLARANTE</option>
+      <option value="10556" data-desc="SERUM CORPORAL REAFIRMANTE 320 ML." data-pieza="48" data-cajas="120">10556 - SERUM REAFIRMANTE</option>
+      <option value="10557" data-desc="VITACILINA SUEROX CORPORAL DE 300ML" data-pieza="48" data-cajas="120">10557 - VITACILINA SUEROX</option>
+      <option value="10558" data-desc="EMULSION CORPORAL DERMATOLOGICA ATOPICALM 400ML" data-pieza="12" data-cajas="60">10558 - EMULSION ATOPICALM</option>
+      <option value="10560" data-desc="EMULSION DIA BE CALM 400ML" data-pieza="12" data-cajas="60">10560 - EMULSION BE CALM</option>
+      <option value="10562" data-desc="EMULSION DERMAN PS CALM" data-pieza="12" data-cajas="60">10562 - EMULSION DERMAN</option>
+      <option value="10563" data-desc="CREMA DERMAN PS CALM" data-pieza="12" data-cajas="80">10563 - CREMA DERMAN</option>
+      <option value="10561" data-desc="CREMA CORPORAL DERMATOLOGICA DB CALM 300G" data-pieza="12" data-cajas="80">10561 - CREMA DB CALM</option>
+      <option value="10559" data-desc="CREMA CORPORAL DERMATOLOGICA ATOPI CALM 300G" data-pieza="12" data-cajas="80">10559 - CREMA ATOPI CALM</option>
+      <option value="10518" data-desc="ROCAINOL CREMA ACCION TERMICA 150G" data-pieza="12" data-cajas="1">10518 - ROCAINOL TERMICA</option>
+    </select>
 
-<label>Total de Piezas</label>
-<input id="totalPiezas" readonly class="mono">
+    <div class="row">
+      <div><label>Código de Producto</label><input id="codigo" readonly class="mono"></div>
+      <div><label>Cajas por Tarima</label><input id="cajas" readonly class="mono"></div>
+      <div><label>Pz por Caja</label><input id="pieza" readonly class="mono"></div>
+      <div><label>Pz por Tarima</label><input id="pz" readonly class="mono"></div>
+    </div>
 
-<label>Descripción</label><input id="descripcion" readonly>
-<label>Lote</label><input id="lote" class="mono" oninput="generarEtiqueta()">
+    <label>Total de Piezas</label>
+    <input id="totalPiezas" readonly class="mono">
 
-<label>Caducidad</label>
-<div class="row">
-  <select id="cad_dia" onchange="generarEtiqueta()"></select>
-  <select id="cad_mes" onchange="generarEtiqueta()"></select>
-  <select id="cad_anio" onchange="generarEtiqueta()"></select>
-</div>
+    <label>Descripción</label><input id="descripcion" readonly>
+    <label>Lote</label><input id="lote" class="mono" oninput="generarEtiqueta()">
 
-<div class="inline">
-  <button class="btn" onclick="printWithUID()">Imprimir en tamaño carta</button>
-  <button class="btn" onclick="exportarPDF()">Exportar a PDF</button>
-</div>
+    <label>Caducidad</label>
+    <div class="row">
+      <select id="cad_dia" onchange="generarEtiqueta()"></select>
+      <select id="cad_mes" onchange="generarEtiqueta()"></select>
+      <select id="cad_anio" onchange="generarEtiqueta()"></select>
+    </div>
 
+    <div class="inline">
+      <button class="btn" onclick="printWithUID()">Imprimir en tamaño carta</button>
+      <button class="btn" onclick="exportarPDF()">Exportar a PDF</button>
+    </div>
   </div>
-</div><div class="etiqueta" id="etiqueta">
+</div>
+
+<div class="etiqueta" id="etiqueta">
   <div class="titulo">ALDISAN-KSK</div>
   <div class="grid">
     <div class="campo"><b>Picker:</b> <span id="e_picker"></span></div>
@@ -95,7 +122,12 @@ input[type=text].mono{ font-family:ui-monospace,Consolas,monospace }
   </div>
   <div class="qrbox"><div id="qrcode"></div></div>
   <div class="barbox"><svg id="barcode"></svg></div>
-</div><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script><script>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+<script>
 // Ajuste: rellenarProducto ahora completa todos los campos y actualiza etiqueta
 window.rellenarProducto = function(){
   const sel = document.getElementById('producto');
@@ -133,5 +165,6 @@ window.rellenarProducto = function(){
   updateLoteControls();
   generarEtiqueta();
 };
-</script></body>
+</script>
+</body>
 </html>
