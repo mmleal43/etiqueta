@@ -47,7 +47,7 @@ input.mono{ font-family:ui-monospace,Consolas,monospace }
   .etiqueta{
     position:absolute; left:0; top:0;
     width:21.59cm; height:27.94cm;
-    transform: scale(0.90);
+    transform: scale(0.90);       /* asegura 1 sola hoja en móviles/impresoras */
     transform-origin: top left;
     page-break-after: avoid; page-break-inside: avoid;
     overflow: hidden;
@@ -61,12 +61,12 @@ input.mono{ font-family:ui-monospace,Consolas,monospace }
 
   <div class="formulario">
     <label>Picker (usuario)</label>
-    <select id="picker" onchange="generarEtiqueta()">
+    <select id="picker">
       <option>Victor</option><option>Edson</option><option>Irving</option>
     </select>
 
     <label>Producto</label>
-    <select id="producto" onchange="rellenarProducto()">
+    <select id="producto">
       <option value="">-- Selecciona un producto --</option>
       <option value="10554" data-desc="SERUM CORPORAL HIDRATANTE 320 ML." data-pieza="48" data-cajas="120">10554 - SERUM HIDRATANTE</option>
       <option value="10555" data-desc="SERUM CORPORAL ACLARANTE 320 ML." data-pieza="48" data-cajas="120">10555 - SERUM ACLARANTE</option>
@@ -85,13 +85,13 @@ input.mono{ font-family:ui-monospace,Consolas,monospace }
     <div id="loteModeWrap" style="display:none;margin-top:6px">
       <label>Modo de Lote</label>
       <div class="inline">
-        <label class="inline"><input type="radio" name="loteMode" id="modeAuto" value="auto" onchange="updateLoteControls()"> Auto (WGH0 + 4 dígitos)</label>
-        <label class="inline"><input type="radio" name="loteMode" id="modeManual" value="manual" onchange="updateLoteControls()"> Manual</label>
+        <label class="inline"><input type="radio" name="loteMode" id="modeAuto" value="auto"> Auto (WGH0 + 4 dígitos)</label>
+        <label class="inline"><input type="radio" name="loteMode" id="modeManual" value="manual"> Manual</label>
       </div>
       <div id="autoLoteGroup" class="row" style="margin-top:8px;display:none">
         <div>
           <label>Últimos 4 dígitos</label>
-          <input id="last4" maxlength="4" class="mono" placeholder="Ej. 6037" oninput="applyAutoLote()">
+          <input id="last4" maxlength="4" class="mono" placeholder="Ej. 6037">
         </div>
         <div>
           <div class="muted">Prefijo aplicado automáticamente:</div>
@@ -113,18 +113,18 @@ input.mono{ font-family:ui-monospace,Consolas,monospace }
     <label>Descripción</label><input id="descripcion" readonly>
 
     <label>Lote</label>
-    <input id="lote" class="mono" oninput="generarEtiqueta()">
+    <input id="lote" class="mono">
 
     <label>Caducidad</label>
     <div class="row">
-      <select id="cad_dia" onchange="generarEtiqueta()"></select>
-      <select id="cad_mes" onchange="generarEtiqueta()"></select>
-      <select id="cad_anio" onchange="generarEtiqueta()"></select>
+      <select id="cad_dia"></select>
+      <select id="cad_mes"></select>
+      <select id="cad_anio"></select>
     </div>
 
     <div class="inline">
-      <button class="btn" onclick="printWithUID()">Imprimir en tamaño carta</button>
-      <button class="btn" onclick="exportarPDF()">Exportar a PDF</button>
+      <button class="btn" id="btnImprimir">Imprimir en tamaño carta</button>
+      <button class="btn" id="btnPDF">Exportar a PDF</button>
     </div>
   </div>
 </div>
@@ -159,66 +159,7 @@ input.mono{ font-family:ui-monospace,Consolas,monospace }
 const wghProducts = new Set(['10558','10559','10560','10561','10562','10563']);
 const digitsOnly = s => (s||'').replace(/\D+/g,'');
 
-/* ===== Autollenado ===== */
-function rellenarProducto(){
-  const sel = document.getElementById('producto');
-  const opt = sel.options[sel.selectedIndex];
-  if(!opt) return;
-
-  const piezas = parseInt(opt.getAttribute('data-pieza'))||0;
-  const cajas  = parseInt(opt.getAttribute('data-cajas'))||0;
-  const pztar  = piezas * cajas;
-
-  document.getElementById('codigo').value = opt.value || '';
-  document.getElementById('descripcion').value = opt.getAttribute('data-desc') || '';
-  document.getElementById('cajas').value = cajas;
-  document.getElementById('pieza').value = piezas;
-  document.getElementById('pz').value = pztar;
-  document.getElementById('totalPiezas').value = pztar;
-
-  updateLoteControls();
-  generarEtiqueta();
-}
-
-/* ===== Lote WGH0 + 4 ===== */
-function updateLoteControls(){
-  const val = document.getElementById('producto').value;
-  const wrap = document.getElementById('loteModeWrap');
-  const autoGroup = document.getElementById('autoLoteGroup');
-  const loteInput = document.getElementById('lote');
-  const mA = document.getElementById('modeAuto');
-  const mM = document.getElementById('modeManual');
-
-  if(wghProducts.has(val)){
-    wrap.style.display='block';
-    if(!mA.checked && !mM.checked) mA.checked = true;
-    const isAuto = mA.checked;
-    autoGroup.style.display = isAuto ? 'grid' : 'none';
-    loteInput.readOnly = isAuto;
-    if(isAuto) applyAutoLote();
-  } else {
-    wrap.style.display='none';
-    document.getElementById('last4').value='';
-    document.getElementById('previewAuto').value='';
-    if(mA) mA.checked=false; if(mM) mM.checked=true;
-    loteInput.readOnly=false;
-  }
-}
-function applyAutoLote(){
-  const l4 = document.getElementById('last4');
-  if(!l4) return;
-  const four = digitsOnly(l4.value).slice(0,4);
-  l4.value = four;
-  const lote = 'WGH0' + four.padStart(4,'0');
-  const prev = document.getElementById('previewAuto');
-  if(prev) prev.value = lote;
-  if(document.getElementById('modeAuto').checked){
-    document.getElementById('lote').value = lote;
-  }
-  generarEtiqueta();
-}
-
-/* ===== UID (oculto) ===== */
+/* ===== UID oculto ===== */
 let currentUID = '';
 const todayKey = () => {
   const d=new Date(), y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), dd=String(d.getDate()).padStart(2,'0');
@@ -232,63 +173,12 @@ function nextUID(){
 }
 function ensureUID(){ if(!currentUID) currentUID = nextUID(); }
 
-/* ===== Caducidad D/M/A ===== */
+/* ===== Caducidad (selects) ===== */
 function poblarSelects(){
   const dSel=document.getElementById('cad_dia');
   const mSel=document.getElementById('cad_mes');
   const ySel=document.getElementById('cad_anio');
-
   dSel.innerHTML='<option value="">Día</option>';
   for(let d=1; d<=31; d++) dSel.innerHTML+=`<option value="${d}">${d}</option>`;
   mSel.innerHTML='<option value="">Mes</option>';
-  for(let m=1; m<=12; m++) mSel.innerHTML+=`<option value="${m}">${m}</option>`;
-  const y0=new Date().getFullYear();
-  ySel.innerHTML='<option value="">Año</option>';
-  for(let y=y0; y<=y0+15; y++) ySel.innerHTML+=`<option value="${y}">${y}</option>`;
-
-  const now=new Date();
-  dSel.value=String(now.getDate());
-  mSel.value=String(now.getMonth()+1);
-  ySel.value=String(now.getFullYear());
-}
-
-/* ===== Payload (QR/Code128) ===== */
-function buildPayload(){
-  ensureUID();
-  const SEP='\t', END='\r';
-  const picker=document.getElementById('picker').value;
-  const codigo=document.getElementById('codigo').value;
-  const desc=document.getElementById('descripcion').value;
-  const lote=document.getElementById('lote').value;
-  const cad=document.getElementById('e_caducidad').textContent || '';
-  const cajas=document.getElementById('cajas').value;
-  const pieza=document.getElementById('pieza').value;
-  const pztar=document.getElementById('pz').value;
-  return [picker,currentUID,codigo,desc,lote,cad,cajas,pieza,pztar].join(SEP)+END;
-}
-
-/* ===== Render etiqueta ===== */
-let qr;
-function makeQR(text){
-  const node=document.getElementById('qrcode');
-  node.innerHTML='';
-  qr=new QRCode(node,{text, width:170, height:170, correctLevel:QRCode.CorrectLevel.M});
-}
-function generarEtiqueta(){
-  const d=document.getElementById('cad_dia').value;
-  const m=document.getElementById('cad_mes').value;
-  const y=document.getElementById('cad_anio').value;
-  const cad = (d && m && y) ? `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}` : '';
-  document.getElementById('e_caducidad').textContent = cad;
-
-  const pcs=parseInt(document.getElementById('pieza').value||'0',10);
-  const cjs=parseInt(document.getElementById('cajas').value||'0',10);
-  const pzt=cjs*pcs;
-  document.getElementById('pz').value = pzt || '';
-  document.getElementById('totalPiezas').value = pzt || '';
-
-  const sel=document.getElementById('producto');
-  const prodTxt= sel.value ? sel.options[sel.selectedIndex].text : '';
-  document.getElementById('e_picker').textContent = document.getElementById('picker').value;
-  document.getElementById('e_producto').textContent = prodTxt;
-  document.getElementById('
+  for(let m=1; m<=12; m++) mSel.innerHTML+=`<option value="${m
