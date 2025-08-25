@@ -24,9 +24,9 @@ input[type=text].mono{ font-family:ui-monospace,Consolas,monospace }
 .row{ display:grid; grid-template-columns:1fr 1fr; gap:12px }
 @media (max-width:720px){ .row{ grid-template-columns:1fr } }/* Etiqueta a página completa (carta) */ .etiqueta{ width:var(--carta-w); height:var(--carta-h); background:#fff; color:#000; border:2px solid #000; padding:32px; display:none; position:relative } .etiqueta .titulo{ text-align:center; font-size:32px; font-weight:900; color:#003366; margin-bottom:12px } .grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px 18px } .campo{ font-size:18px; line-height:1.25 } .campo b{ display:inline-block; min-width:190px }
 
-/* QR y código de barras */ .qrbox{ position:absolute; right:32px; bottom:32px; width:180px; height:180px; border:1px solid #000; display:flex; align-items:center; justify-content:center; background:#fff } .barbox{ position:absolute; left:32px; bottom:32px; width:60%; max-width:520px; border:1px solid #000; background:#fff; padding:8px } #barcode{ width:100%; height:120px }
+.qrbox{ position:absolute; right:32px; bottom:32px; width:180px; height:180px; border:1px solid #000; display:flex; align-items:center; justify-content:center; background:#fff } .barbox{ position:absolute; left:32px; bottom:32px; width:60%; max-width:520px; border:1px solid #000; background:#fff; padding:8px } #barcode{ width:100%; height:120px }
 
-/* Impresión a tamaño carta completo */ @media print{ body *{ visibility:hidden } .etiqueta, .etiqueta *{ visibility:visible } .etiqueta{ position:absolute; inset:0 auto auto 0 } } </style>
+@media print{ body *{ visibility:hidden } .etiqueta, .etiqueta *{ visibility:visible } .etiqueta{ position:absolute; inset:0 auto auto 0 } } </style>
 
 </head>
 <body>
@@ -37,7 +37,7 @@ input[type=text].mono{ font-family:ui-monospace,Consolas,monospace }
     <select id="picker" onchange="generarEtiqueta()">
       <option>Victor</option><option>Edson</option><option>Irving</option>
     </select><label>Producto</label>
-<select id="producto" onchange="rellenarProducto();updateLoteControls();generarEtiqueta()">
+<select id="producto" onchange="rellenarProducto();updateLoteControls();">
   <option value="">-- Selecciona un producto --</option>
   <option value="10554" data-desc="SERUM CORPORAL HIDRATANTE 320 ML." data-pieza="48" data-cajas="120">10554 - SERUM HIDRATANTE</option>
   <option value="10555" data-desc="SERUM CORPORAL ACLARANTE 320 ML." data-pieza="48" data-cajas="120">10555 - SERUM ACLARANTE</option>
@@ -51,18 +51,6 @@ input[type=text].mono{ font-family:ui-monospace,Consolas,monospace }
   <option value="10559" data-desc="CREMA CORPORAL DERMATOLOGICA ATOPI CALM 300G" data-pieza="12" data-cajas="80">10559 - CREMA ATOPI CALM</option>
   <option value="10518" data-desc="ROCAINOL CREMA ACCION TERMICA 150G" data-pieza="12" data-cajas="1">10518 - ROCAINOL TERMICA</option>
 </select>
-
-<div id="loteModeWrap" style="display:none;margin-top:6px">
-  <label>Modo de Lote</label>
-  <div class="inline">
-    <label class="inline"><input type="radio" name="loteMode" id="modeAuto" value="auto" onchange="updateLoteControls()"> Auto (WGH0 + 4 dígitos)</label>
-    <label class="inline"><input type="radio" name="loteMode" id="modeManual" value="manual" onchange="updateLoteControls()"> Manual</label>
-  </div>
-  <div id="autoLoteGroup" class="row" style="margin-top:8px;display:none">
-    <div><label>Últimos 4 dígitos</label><input id="last4" maxlength="4" class="mono" placeholder="Ej. 5006" oninput="applyAutoLote()"></div>
-    <div><div class="muted">Prefijo aplicado automáticamente:</div><input id="previewAuto" class="mono" readonly></div>
-  </div>
-</div>
 
 <div class="row">
   <div><label>Código de Producto</label><input id="codigo" readonly class="mono"></div>
@@ -108,20 +96,42 @@ input[type=text].mono{ font-family:ui-monospace,Consolas,monospace }
   <div class="qrbox"><div id="qrcode"></div></div>
   <div class="barbox"><svg id="barcode"></svg></div>
 </div><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script><script>
-// ... (todas las funciones previas de generarEtiqueta, buildPayload, etc. permanecen igual)
+// Ajuste: rellenarProducto ahora completa todos los campos y actualiza etiqueta
+window.rellenarProducto = function(){
+  const sel = document.getElementById('producto');
+  const opt = sel.options[sel.selectedIndex] || {};
+  const piezas = parseInt(opt.getAttribute('data-pieza'))||0;
+  const cajas  = parseInt(opt.getAttribute('data-cajas'))||0;
+  const pztar  = piezas * cajas;
 
-window.exportarPDF = function(){
-  ensureUID();
-  window.generarEtiqueta();
-  const element = document.getElementById('etiqueta');
-  const opt = {
-    margin: 0,
-    filename: 'etiqueta_tarima.pdf',
-    image: { type: 'jpeg', quality: 1 },
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: 'cm', format: 'letter', orientation: 'portrait' }
-  };
-  html2pdf().set(opt).from(element).save();
+  document.getElementById('codigo').value = opt.value || '';
+  document.getElementById('descripcion').value = opt.getAttribute('data-desc') || '';
+  document.getElementById('cajas').value = cajas || '';
+  document.getElementById('pieza').value = piezas || '';
+  document.getElementById('pz').value = pztar || '';
+  document.getElementById('totalPiezas').value = pztar || '';
+
+  generarEtiqueta();
+};
+
+// El resto de funciones de UID, generarEtiqueta, buildPayload, etc. permanecen igual.
+// --- Patch: redefinir rellenarProducto para autocompletar correctamente ---
+window.rellenarProducto = function(){
+  const sel = document.getElementById('producto');
+  const opt = sel.options[sel.selectedIndex] || {};
+  const piezas = parseInt(opt.getAttribute('data-pieza'))||0;
+  const cajas  = parseInt(opt.getAttribute('data-cajas'))||0;
+  const pztar  = piezas * cajas;
+
+  document.getElementById('codigo').value = opt.value || '';
+  document.getElementById('descripcion').value = opt.getAttribute('data-desc') || '';
+  document.getElementById('cajas').value = cajas || '';
+  document.getElementById('pieza').value = piezas || '';
+  document.getElementById('pz').value = pztar || '';
+  document.getElementById('totalPiezas').value = pztar || '';
+
+  updateLoteControls();
+  generarEtiqueta();
 };
 </script></body>
 </html>
