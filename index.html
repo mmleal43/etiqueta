@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8" />
 <title>Etiqueta de Tarima – ALDISAN-KSK</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <style>
@@ -58,6 +58,7 @@ input[type=text].mono{ font-family:ui-monospace,Consolas,monospace }
 <body>
 <div class="wrap">
   <h1>ALDISAN-KSK – Generador de Etiquetas</h1>
+
   <div class="formulario">
     <label>Picker (usuario)</label>
     <select id="picker" onchange="generarEtiqueta()">
@@ -65,7 +66,7 @@ input[type=text].mono{ font-family:ui-monospace,Consolas,monospace }
     </select>
 
     <label>Producto</label>
-    <select id="producto" onchange="rellenarProducto();updateLoteControls();generarEtiqueta()">
+    <select id="producto" onchange="rellenarProducto()">
       <option value="">-- Selecciona un producto --</option>
       <option value="10554" data-desc="SERUM CORPORAL HIDRATANTE 320 ML." data-pieza="48" data-cajas="120">10554 - SERUM HIDRATANTE</option>
       <option value="10555" data-desc="SERUM CORPORAL ACLARANTE 320 ML." data-pieza="48" data-cajas="120">10555 - SERUM ACLARANTE</option>
@@ -84,11 +85,11 @@ input[type=text].mono{ font-family:ui-monospace,Consolas,monospace }
     <div id="loteModeWrap" style="display:none;margin-top:6px">
       <label>Modo de Lote</label>
       <div class="inline">
-        <label class="inline"><input type="radio" name="loteMode" id="modeAuto" value="auto" onchange="updateLoteControls()"> Auto (WGH0 + 4 dígitos)</label>
-        <label class="inline"><input type="radio" name="loteMode" id="modeManual" value="manual" onchange="updateLoteControls()"> Manual</label>
+        <label class="inline"><input type="radio" name="loteMode" id="modeAuto" value="auto"> Auto (WGH0 + 4 dígitos)</label>
+        <label class="inline"><input type="radio" name="loteMode" id="modeManual" value="manual"> Manual</label>
       </div>
       <div id="autoLoteGroup" class="row" style="margin-top:8px;display:none">
-        <div><label>Últimos 4 dígitos</label><input id="last4" maxlength="4" class="mono" placeholder="Ej. 5006" oninput="applyAutoLote()"></div>
+        <div><label>Últimos 4 dígitos</label><input id="last4" maxlength="4" class="mono" placeholder="Ej. 5006"></div>
         <div><div class="muted">Prefijo aplicado automáticamente:</div><input id="previewAuto" class="mono" readonly></div>
       </div>
     </div>
@@ -109,9 +110,9 @@ input[type=text].mono{ font-family:ui-monospace,Consolas,monospace }
     <!-- Caducidad con selects (día/mes/año) -->
     <label>Caducidad</label>
     <div class="row">
-      <select id="cad_dia" onchange="generarEtiqueta()"></select>
-      <select id="cad_mes" onchange="generarEtiqueta()"></select>
-      <select id="cad_anio" onchange="generarEtiqueta()"></select>
+      <select id="cad_dia"></select>
+      <select id="cad_mes"></select>
+      <select id="cad_anio"></select>
     </div>
 
     <div class="inline">
@@ -151,8 +152,7 @@ input[type=text].mono{ font-family:ui-monospace,Consolas,monospace }
    Configuración y helpers
    ========================== */
 const wghProducts = new Set(['10558','10559','10560','10561','10562','10563']);
-
-function onlyDigits(s){ return (s||'').replace(/\D+/g,''); }
+function onlyDigits(s){ return (s||'').replace(/\\D+/g,''); }
 
 /* ==========================
    Autollenado de producto
@@ -171,13 +171,18 @@ window.rellenarProducto = function(){
   document.getElementById('pz').value = pztar || '';
   document.getElementById('totalPiezas').value = pztar || '';
 
+  // activar/actualizar predicción de lote después de fijar el producto
   updateLoteControls();
+
+  // refrescar etiqueta/QR
   generarEtiqueta();
 };
 
 /* ==========================
    Predicción de lote WGH0
    ========================== */
+function show(el, yes){ el.style.display = yes ? '' : 'none'; }
+
 window.updateLoteControls = function(){
   const val = document.getElementById('producto').value;
   const wrap = document.getElementById('loteModeWrap');
@@ -188,26 +193,38 @@ window.updateLoteControls = function(){
 
   if(wghProducts.has(val)){
     wrap.style.display='block';
+    // por defecto, Auto
     if(!modeAuto.checked && !modeManual.checked){ modeAuto.checked = true; }
     const isAuto = modeAuto.checked;
-    autoGroup.style.display = isAuto ? 'grid' : 'none';
+    show(autoGroup, isAuto);
     loteInput.readOnly = isAuto;
     if(isAuto) applyAutoLote();
   } else {
     wrap.style.display='none';
-    const l4=document.getElementById('last4'); if(l4) l4.value='';
-    const pA=document.getElementById('previewAuto'); if(pA) pA.value='';
-    if(modeAuto) modeAuto.checked=false; if(modeManual) modeManual.checked=true;
+    document.getElementById('last4').value = '';
+    document.getElementById('previewAuto').value = '';
+    if(modeAuto) modeAuto.checked=false;
+    if(modeManual) modeManual.checked=true;
     loteInput.readOnly=false;
   }
+  generarEtiqueta();
 };
 
+// escuchar cambios de los radios/l4 también en móvil
+['modeAuto','modeManual','last4'].forEach(id=>{
+  document.addEventListener('change', (e)=>{ if(e.target && e.target.id===id){ if(id==='last4'){ applyAutoLote(); } else { updateLoteControls(); } } });
+  document.addEventListener('input', (e)=>{ if(e.target && e.target.id==='last4'){ applyAutoLote(); } });
+});
+
 window.applyAutoLote = function(){
-  const digits = onlyDigits(document.getElementById('last4').value).slice(0,4);
-  document.getElementById('last4').value = digits;
+  const l4 = document.getElementById('last4');
+  const digits = onlyDigits(l4.value).slice(0,4);
+  l4.value = digits;
   const lote = 'WGH0' + digits.padStart(4,'0');
   document.getElementById('previewAuto').value = lote;
-  if(document.getElementById('modeAuto').checked){ document.getElementById('lote').value = lote; }
+  if(document.getElementById('modeAuto').checked){
+    document.getElementById('lote').value = lote;
+  }
   generarEtiqueta();
 };
 
@@ -236,19 +253,22 @@ function poblarSelects(){
   const mesSel=document.getElementById('cad_mes');
   const anioSel=document.getElementById('cad_anio');
 
-  if(!diaSel.options.length){
-    diaSel.innerHTML='<option value="">Día</option>';
-    for(let d=1; d<=31; d++){ diaSel.innerHTML+=`<option value="${d}">${d}</option>`; }
-  }
-  if(!mesSel.options.length){
-    mesSel.innerHTML='<option value="">Mes</option>';
-    for(let m=1; m<=12; m++){ mesSel.innerHTML+=`<option value="${m}">${m}</option>`; }
-  }
-  if(!anioSel.options.length){
-    const yearNow=new Date().getFullYear();
-    anioSel.innerHTML='<option value="">Año</option>';
-    for(let y=yearNow; y<=yearNow+15; y++){ anioSel.innerHTML+=`<option value="${y}">${y}</option>`; }
-  }
+  // repoblar SIEMPRE para evitar estados raros en móvil
+  diaSel.innerHTML='<option value=\"\">Día</option>';
+  for(let d=1; d<=31; d++){ diaSel.innerHTML+=`<option value=\"${d}\">${d}</option>`; }
+
+  mesSel.innerHTML='<option value=\"\">Mes</option>';
+  for(let m=1; m<=12; m++){ mesSel.innerHTML+=`<option value=\"${m}\">${m}</option>`; }
+
+  const yearNow=new Date().getFullYear();
+  anioSel.innerHTML='<option value=\"\">Año</option>';
+  for(let y=yearNow; y<=yearNow+15; y++){ anioSel.innerHTML+=`<option value=\"${y}\">${y}</option>`; }
+
+  // seleccionar fecha actual por defecto
+  const now=new Date();
+  diaSel.value=String(now.getDate());
+  mesSel.value=String(now.getMonth()+1);
+  anioSel.value=String(now.getFullYear());
 }
 
 /* ==========================
@@ -258,7 +278,7 @@ function poblarSelects(){
    ========================== */
 window.buildPayload = function(){
   ensureUID();
-  const TAB='\t', ENTER='\r';
+  const TAB='\\t', ENTER='\\r';
   const picker = document.getElementById('picker').value;
   const codigo = document.getElementById('codigo').value;
   const desc   = document.getElementById('descripcion').value;
@@ -281,7 +301,8 @@ function makeQR(text){
 }
 
 window.generarEtiqueta = function(){
-  poblarSelects(); // por si algo detuvo el poblamiento
+  // aseguramos selects poblados y con valor por defecto
+  poblarSelects();
 
   const prodSel = document.getElementById('producto');
   const prodTxt = prodSel.value ? prodSel.options[prodSel.selectedIndex].text : '';
@@ -355,10 +376,6 @@ window.exportarPDF = function(){
    ========================== */
 window.addEventListener('DOMContentLoaded', ()=>{
   poblarSelects();
-  const now=new Date();
-  document.getElementById('cad_dia').value=String(now.getDate());
-  document.getElementById('cad_mes').value=String(now.getMonth()+1);
-  document.getElementById('cad_anio').value=String(now.getFullYear());
   generarEtiqueta();
 });
 </script>
