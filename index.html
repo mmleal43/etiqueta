@@ -181,4 +181,206 @@ function poblarSelects(){
   dSel.innerHTML='<option value="">Día</option>';
   for(let d=1; d<=31; d++) dSel.innerHTML+=`<option value="${d}">${d}</option>`;
   mSel.innerHTML='<option value="">Mes</option>';
-  for(let m=1; m<=12; m++) mSel.innerHTML+=`<option value="${m
+  for(let m=1; m<=12; m++) mSel.innerHTML+=`<option value="${m}">${m}</option>`;
+  ySel.innerHTML='<option value="">Año</option>';
+  const currentYear = new Date().getFullYear();
+  for(let y=currentYear; y<=currentYear+5; y++) ySel.innerHTML+=`<option value="${y}">${y}</option>`;
+}
+poblarSelects();
+
+/* ===== Event Listeners ===== */
+document.getElementById('producto').addEventListener('change', function(){
+  const opt = this.options[this.selectedIndex];
+  const codigo = this.value;
+  
+  if(!codigo) {
+    document.getElementById('loteModeWrap').style.display = 'none';
+    return;
+  }
+  
+  const desc = opt.getAttribute('data-desc');
+  const pieza = opt.getAttribute('data-pieza');
+  const cajas = opt.getAttribute('data-cajas');
+  const pz = parseInt(pieza) * parseInt(cajas);
+  
+  document.getElementById('codigo').value = codigo;
+  document.getElementById('descripcion').value = desc;
+  document.getElementById('pieza').value = pieza;
+  document.getElementById('cajas').value = cajas;
+  document.getElementById('pz').value = pz;
+  document.getElementById('totalPiezas').value = pz;
+  
+  // Mostrar opciones de lote según el tipo de producto
+  document.getElementById('loteModeWrap').style.display = 'block';
+  
+  if(wghProducts.has(codigo)) {
+    document.getElementById('modeAuto').checked = true;
+    document.getElementById('autoLoteGroup').style.display = 'grid';
+    document.getElementById('lote').readOnly = true;
+    actualizarLoteAuto();
+  } else {
+    document.getElementById('modeManual').checked = true;
+    document.getElementById('autoLoteGroup').style.display = 'none';
+    document.getElementById('lote').readOnly = false;
+    document.getElementById('lote').value = '';
+  }
+});
+
+// Eventos para el modo de lote
+document.querySelectorAll('input[name="loteMode"]').forEach(radio => {
+  radio.addEventListener('change', function() {
+    if(this.value === 'auto') {
+      document.getElementById('autoLoteGroup').style.display = 'grid';
+      document.getElementById('lote').readOnly = true;
+      actualizarLoteAuto();
+    } else {
+      document.getElementById('autoLoteGroup').style.display = 'none';
+      document.getElementById('lote').readOnly = false;
+      document.getElementById('lote').value = '';
+    }
+  });
+});
+
+document.getElementById('last4').addEventListener('input', function(){
+  this.value = digitsOnly(this.value).substring(0,4);
+  actualizarLoteAuto();
+});
+
+function actualizarLoteAuto() {
+  const last4 = document.getElementById('last4').value;
+  const codigo = document.getElementById('codigo').value;
+  
+  if(wghProducts.has(codigo)) {
+    document.getElementById('previewAuto').value = 'WGH0' + (last4 ? last4 : '____');
+    document.getElementById('lote').value = 'WGH0' + last4;
+  }
+}
+
+// Botones de acción
+document.getElementById('btnImprimir').addEventListener('click', function(){
+  if(!validarFormulario()) return;
+  
+  ensureUID();
+  actualizarEtiqueta();
+  window.print();
+});
+
+document.getElementById('btnPDF').addEventListener('click', function(){
+  if(!validarFormulario()) return;
+  
+  ensureUID();
+  actualizarEtiqueta();
+  
+  const element = document.getElementById('etiqueta');
+  const opt = {
+    margin: 0,
+    filename: `etiqueta_${currentUID}.pdf`,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'cm', format: 'letter', orientation: 'portrait' }
+  };
+  
+  html2pdf().set(opt).from(element).save();
+});
+
+/* ===== Validación ===== */
+function validarFormulario() {
+  const producto = document.getElementById('producto').value;
+  const lote = document.getElementById('lote').value;
+  const dia = document.getElementById('cad_dia').value;
+  const mes = document.getElementById('cad_mes').value;
+  const anio = document.getElementById('cad_anio').value;
+  
+  if(!producto) {
+    alert('Por favor selecciona un producto');
+    return false;
+  }
+  
+  if(!lote) {
+    alert('Por favor ingresa el lote');
+    return false;
+  }
+  
+  if(!dia || !mes || !anio) {
+    alert('Por favor completa la fecha de caducidad');
+    return false;
+  }
+  
+  return true;
+}
+
+/* ===== Actualizar etiqueta ===== */
+function actualizarEtiqueta() {
+  // Obtener valores del formulario
+  const picker = document.getElementById('picker').value;
+  const producto = document.getElementById('producto').options[document.getElementById('producto').selectedIndex].text;
+  const codigo = document.getElementById('codigo').value;
+  const descripcion = document.getElementById('descripcion').value;
+  const cajas = document.getElementById('cajas').value;
+  const pieza = document.getElementById('pieza').value;
+  const pz = document.getElementById('pz').value;
+  const totalPiezas = document.getElementById('totalPiezas').value;
+  const lote = document.getElementById('lote').value;
+  const dia = document.getElementById('cad_dia').value;
+  const mes = document.getElementById('cad_mes').value;
+  const anio = document.getElementById('cad_anio').value;
+  const caducidad = `${dia}/${mes}/${anio}`;
+  
+  // Fecha actual
+  const hoy = new Date();
+  const fechaMaquila = `${String(hoy.getDate()).padStart(2,'0')}/${String(hoy.getMonth()+1).padStart(2,'0')}/${hoy.getFullYear()}`;
+  
+  // Actualizar etiqueta
+  document.getElementById('e_picker').textContent = picker;
+  document.getElementById('e_producto').textContent = producto;
+  document.getElementById('e_codigo').textContent = codigo;
+  document.getElementById('e_descripcion').textContent = descripcion;
+  document.getElementById('e_cajas').textContent = cajas;
+  document.getElementById('e_pieza').textContent = pieza;
+  document.getElementById('e_pz').textContent = pz;
+  document.getElementById('e_totalPiezas').textContent = totalPiezas;
+  document.getElementById('e_lote').textContent = lote;
+  document.getElementById('e_caducidad').textContent = caducidad;
+  document.getElementById('e_fecha').textContent = fechaMaquila;
+  
+  // Mostrar etiqueta
+  document.getElementById('etiqueta').style.display = 'block';
+  
+  // Generar códigos de barras y QR
+  generarCodigoBarras();
+  generarQRCode();
+}
+
+function generarCodigoBarras() {
+  const lote = document.getElementById('lote').value;
+  JsBarcode("#barcode", lote, {
+    format: "CODE128",
+    displayValue: true,
+    fontSize: 16,
+    height: 60,
+    margin: 10
+  });
+}
+
+function generarQRCode() {
+  const lote = document.getElementById('lote').value;
+  const codigo = document.getElementById('codigo').value;
+  const caducidad = document.getElementById('cad_dia').value + '/' + 
+                    document.getElementById('cad_mes').value + '/' + 
+                    document.getElementById('cad_anio').value;
+  
+  const qrContent = `COD:${codigo}|LOTE:${lote}|CAD:${caducidad}|UID:${currentUID}`;
+  
+  document.getElementById('qrcode').innerHTML = '';
+  new QRCode(document.getElementById('qrcode'), {
+    text: qrContent,
+    width: 150,
+    height: 150,
+    colorDark : "#000000",
+    colorLight : "#ffffff",
+    correctLevel : QRCode.CorrectLevel.H
+  });
+}
+</script>
+</body>
+</html>
