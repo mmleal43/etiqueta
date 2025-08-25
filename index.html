@@ -182,205 +182,169 @@ function poblarSelects(){
   for(let d=1; d<=31; d++) dSel.innerHTML+=`<option value="${d}">${d}</option>`;
   mSel.innerHTML='<option value="">Mes</option>';
   for(let m=1; m<=12; m++) mSel.innerHTML+=`<option value="${m}">${m}</option>`;
+  const y0=new Date().getFullYear();
   ySel.innerHTML='<option value="">Año</option>';
-  const currentYear = new Date().getFullYear();
-  for(let y=currentYear; y<=currentYear+5; y++) ySel.innerHTML+=`<option value="${y}">${y}</option>`;
+  for(let y=y0; y<=y0+15; y++) ySel.innerHTML+=`<option value="${y}">${y}</option>`;
+  const now=new Date();
+  dSel.value=String(now.getDate());
+  mSel.value=String(now.getMonth()+1);
+  ySel.value=String(now.getFullYear());
 }
-poblarSelects();
 
-/* ===== Event Listeners ===== */
-document.getElementById('producto').addEventListener('change', function(){
-  const opt = this.options[this.selectedIndex];
-  const codigo = this.value;
-  
-  if(!codigo) {
-    document.getElementById('loteModeWrap').style.display = 'none';
-    return;
-  }
-  
-  const desc = opt.getAttribute('data-desc');
-  const pieza = opt.getAttribute('data-pieza');
-  const cajas = opt.getAttribute('data-cajas');
-  const pz = parseInt(pieza) * parseInt(cajas);
-  
-  document.getElementById('codigo').value = codigo;
-  document.getElementById('descripcion').value = desc;
-  document.getElementById('pieza').value = pieza;
-  document.getElementById('cajas').value = cajas;
-  document.getElementById('pz').value = pz;
-  document.getElementById('totalPiezas').value = pz;
-  
-  // Mostrar opciones de lote según el tipo de producto
-  document.getElementById('loteModeWrap').style.display = 'block';
-  
-  if(wghProducts.has(codigo)) {
-    document.getElementById('modeAuto').checked = true;
-    document.getElementById('autoLoteGroup').style.display = 'grid';
-    document.getElementById('lote').readOnly = true;
-    actualizarLoteAuto();
+/* ===== Autorrelleno de producto ===== */
+function rellenarProducto(){
+  const sel = document.getElementById('producto');
+  const opt = sel.options[sel.selectedIndex];
+  if(!opt) return;
+  const piezas = parseInt(opt.getAttribute('data-pieza')||'0',10);
+  const cajas  = parseInt(opt.getAttribute('data-cajas')||'0',10);
+  const pztar  = piezas*cajas;
+
+  document.getElementById('codigo').value = opt.value || '';
+  document.getElementById('descripcion').value = opt.getAttribute('data-desc') || '';
+  document.getElementById('cajas').value = cajas ? String(cajas) : '';
+  document.getElementById('pieza').value = piezas ? String(piezas) : '';
+  document.getElementById('pz').value = pztar ? String(pztar) : '';
+  document.getElementById('totalPiezas').value = pztar ? String(pztar) : '';
+
+  updateLoteControls();
+  generarEtiqueta();
+}
+
+/* ===== Lote: WGH0 + 4 dígitos o manual ===== */
+function updateLoteControls(){
+  const val = document.getElementById('producto').value;
+  const wrap = document.getElementById('loteModeWrap');
+  const autoGroup = document.getElementById('autoLoteGroup');
+  const loteInput = document.getElementById('lote');
+  const mA = document.getElementById('modeAuto');
+  const mM = document.getElementById('modeManual');
+
+  if(wghProducts.has(val)){
+    wrap.style.display='block';
+    if(!mA.checked && !mM.checked) mA.checked = true;
+    const isAuto = mA.checked;
+    autoGroup.style.display = isAuto ? 'grid' : 'none';
+    loteInput.readOnly = isAuto;
+    if(isAuto) applyAutoLote();
   } else {
-    document.getElementById('modeManual').checked = true;
-    document.getElementById('autoLoteGroup').style.display = 'none';
-    document.getElementById('lote').readOnly = false;
-    document.getElementById('lote').value = '';
-  }
-});
-
-// Eventos para el modo de lote
-document.querySelectorAll('input[name="loteMode"]').forEach(radio => {
-  radio.addEventListener('change', function() {
-    if(this.value === 'auto') {
-      document.getElementById('autoLoteGroup').style.display = 'grid';
-      document.getElementById('lote').readOnly = true;
-      actualizarLoteAuto();
-    } else {
-      document.getElementById('autoLoteGroup').style.display = 'none';
-      document.getElementById('lote').readOnly = false;
-      document.getElementById('lote').value = '';
-    }
-  });
-});
-
-document.getElementById('last4').addEventListener('input', function(){
-  this.value = digitsOnly(this.value).substring(0,4);
-  actualizarLoteAuto();
-});
-
-function actualizarLoteAuto() {
-  const last4 = document.getElementById('last4').value;
-  const codigo = document.getElementById('codigo').value;
-  
-  if(wghProducts.has(codigo)) {
-    document.getElementById('previewAuto').value = 'WGH0' + (last4 ? last4 : '____');
-    document.getElementById('lote').value = 'WGH0' + last4;
+    wrap.style.display='none';
+    const l4=document.getElementById('last4'), prev=document.getElementById('previewAuto');
+    if(l4) l4.value=''; if(prev) prev.value='';
+    if(mA) mA.checked=false; if(mM) mM.checked=true;
+    loteInput.readOnly=false;
   }
 }
+function applyAutoLote(){
+  const l4=document.getElementById('last4');
+  if(!l4) return;
+  const four = digitsOnly(l4.value).slice(0,4);
+  l4.value=four;
+  const lote='WGH0'+four.padStart(4,'0');
+  const prev=document.getElementById('previewAuto');
+  if(prev) prev.value=lote;
+  if(document.getElementById('modeAuto').checked){
+    document.getElementById('lote').value=lote;
+  }
+  generarEtiqueta();
+}
 
-// Botones de acción
-document.getElementById('btnImprimir').addEventListener('click', function(){
-  if(!validarFormulario()) return;
-  
+/* ===== Construir payload para QR/Barcode =====
+   Orden: Picker, UID, Código, Descripción, Lote, Caducidad, Cajas/Tarima, Pz/Caja, Pz/Tarima
+*/
+function buildPayload(){
   ensureUID();
-  actualizarEtiqueta();
-  window.print();
+  const SEP='\t', END='\r';
+  const picker=document.getElementById('picker').value;
+  const codigo=document.getElementById('codigo').value;
+  const desc=document.getElementById('descripcion').value;
+  const lote=document.getElementById('lote').value;
+  const d=document.getElementById('cad_dia').value;
+  const m=document.getElementById('cad_mes').value;
+  const y=document.getElementById('cad_anio').value;
+  const cad=(d&&m&&y)?`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`:'';
+  const cajas=document.getElementById('cajas').value;
+  const pieza=document.getElementById('pieza').value;
+  const pztar=document.getElementById('pz').value;
+  return [picker,currentUID,codigo,desc,lote,cad,cajas,pieza,pztar].join(SEP)+END;
+}
+
+/* ===== Pintar etiqueta (y QR/Code128) ===== */
+let qr;
+function makeQR(text){
+  const node=document.getElementById('qrcode');
+  node.innerHTML='';
+  qr=new QRCode(node,{text,width:170,height:170,correctLevel:QRCode.CorrectLevel.M});
+}
+function generarEtiqueta(){
+  // Caducidad visible
+  const d=document.getElementById('cad_dia').value;
+  const m=document.getElementById('cad_mes').value;
+  const y=document.getElementById('cad_anio').value;
+  const cad=(d&&m&&y)?`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`:'';
+  document.getElementById('e_caducidad').textContent=cad;
+
+  // Recalcular totales (por si cambió algo)
+  const pcs=parseInt(document.getElementById('pieza').value||'0',10);
+  const cjs=parseInt(document.getElementById('cajas').value||'0',10);
+  const pzt=cjs*pcs;
+  document.getElementById('pz').value=pzt||'';
+  document.getElementById('totalPiezas').value=pzt||'';
+
+  // Copiar a etiqueta
+  const sel=document.getElementById('producto');
+  const prodTxt= sel.value ? sel.options[sel.selectedIndex].text : '';
+  document.getElementById('e_picker').textContent=document.getElementById('picker').value;
+  document.getElementById('e_producto').textContent=prodTxt;
+  document.getElementById('e_codigo').textContent=document.getElementById('codigo').value;
+  document.getElementById('e_descripcion').textContent=document.getElementById('descripcion').value;
+  document.getElementById('e_cajas').textContent=document.getElementById('cajas').value;
+  document.getElementById('e_pieza').textContent=document.getElementById('pieza').value;
+  document.getElementById('e_pz').textContent=document.getElementById('pz').value;
+  document.getElementById('e_totalPiezas').textContent=document.getElementById('totalPiezas').value;
+  document.getElementById('e_lote').textContent=document.getElementById('lote').value;
+
+  const hoy=new Date();
+  document.getElementById('e_fecha').textContent=hoy.toLocaleDateString('es-MX',{year:'numeric',month:'2-digit',day:'2-digit'});
+  document.getElementById('etiqueta').style.display='block';
+
+  const payload=buildPayload();
+  makeQR(payload);
+  try{
+    JsBarcode('#barcode', payload, {format:'CODE128',lineColor:'#000',width:2,height:60,displayValue:false,margin:0});
+  }catch(e){ document.getElementById('barcode').innerHTML=''; }
+}
+
+/* ===== Imprimir / PDF ===== */
+function printWithUID(){ ensureUID(); generarEtiqueta(); window.print(); }
+function exportarPDF(){
+  ensureUID(); generarEtiqueta();
+  if(typeof html2pdf==='undefined'){ alert('No se pudo cargar html2pdf.'); return; }
+  const codigo=(document.getElementById('codigo').value||'PROD');
+  const fecha=(document.getElementById('e_fecha').textContent||'FECHA').replaceAll('/','-');
+  html2pdf().set({
+    margin:0, filename:`${codigo}_${fecha}.pdf`,
+    image:{type:'jpeg',quality:1}, html2canvas:{scale:2},
+    jsPDF:{unit:'cm',format:'letter',orientation:'portrait'}
+  }).from(document.getElementById('etiqueta')).save();
+}
+
+/* ===== Listeners robustos ===== */
+document.addEventListener('DOMContentLoaded', ()=>{
+  poblarSelects();
+  // autorrelleno robusto
+  document.getElementById('producto').addEventListener('change', rellenarProducto);
+  // lote listeners
+  const l4=document.getElementById('last4');
+  if(l4){ l4.addEventListener('input', applyAutoLote); l4.addEventListener('change', applyAutoLote); }
+  document.getElementById('modeAuto').addEventListener('change', updateLoteControls);
+  document.getElementById('modeManual').addEventListener('change', updateLoteControls);
+  // botones
+  document.getElementById('btnImprimir').addEventListener('click', printWithUID);
+  document.getElementById('btnPDF').addEventListener('click', exportarPDF);
+  // primera pintura
+  generarEtiqueta();
 });
-
-document.getElementById('btnPDF').addEventListener('click', function(){
-  if(!validarFormulario()) return;
-  
-  ensureUID();
-  actualizarEtiqueta();
-  
-  const element = document.getElementById('etiqueta');
-  const opt = {
-    margin: 0,
-    filename: `etiqueta_${currentUID}.pdf`,
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: 'cm', format: 'letter', orientation: 'portrait' }
-  };
-  
-  html2pdf().set(opt).from(element).save();
-});
-
-/* ===== Validación ===== */
-function validarFormulario() {
-  const producto = document.getElementById('producto').value;
-  const lote = document.getElementById('lote').value;
-  const dia = document.getElementById('cad_dia').value;
-  const mes = document.getElementById('cad_mes').value;
-  const anio = document.getElementById('cad_anio').value;
-  
-  if(!producto) {
-    alert('Por favor selecciona un producto');
-    return false;
-  }
-  
-  if(!lote) {
-    alert('Por favor ingresa el lote');
-    return false;
-  }
-  
-  if(!dia || !mes || !anio) {
-    alert('Por favor completa la fecha de caducidad');
-    return false;
-  }
-  
-  return true;
-}
-
-/* ===== Actualizar etiqueta ===== */
-function actualizarEtiqueta() {
-  // Obtener valores del formulario
-  const picker = document.getElementById('picker').value;
-  const producto = document.getElementById('producto').options[document.getElementById('producto').selectedIndex].text;
-  const codigo = document.getElementById('codigo').value;
-  const descripcion = document.getElementById('descripcion').value;
-  const cajas = document.getElementById('cajas').value;
-  const pieza = document.getElementById('pieza').value;
-  const pz = document.getElementById('pz').value;
-  const totalPiezas = document.getElementById('totalPiezas').value;
-  const lote = document.getElementById('lote').value;
-  const dia = document.getElementById('cad_dia').value;
-  const mes = document.getElementById('cad_mes').value;
-  const anio = document.getElementById('cad_anio').value;
-  const caducidad = `${dia}/${mes}/${anio}`;
-  
-  // Fecha actual
-  const hoy = new Date();
-  const fechaMaquila = `${String(hoy.getDate()).padStart(2,'0')}/${String(hoy.getMonth()+1).padStart(2,'0')}/${hoy.getFullYear()}`;
-  
-  // Actualizar etiqueta
-  document.getElementById('e_picker').textContent = picker;
-  document.getElementById('e_producto').textContent = producto;
-  document.getElementById('e_codigo').textContent = codigo;
-  document.getElementById('e_descripcion').textContent = descripcion;
-  document.getElementById('e_cajas').textContent = cajas;
-  document.getElementById('e_pieza').textContent = pieza;
-  document.getElementById('e_pz').textContent = pz;
-  document.getElementById('e_totalPiezas').textContent = totalPiezas;
-  document.getElementById('e_lote').textContent = lote;
-  document.getElementById('e_caducidad').textContent = caducidad;
-  document.getElementById('e_fecha').textContent = fechaMaquila;
-  
-  // Mostrar etiqueta
-  document.getElementById('etiqueta').style.display = 'block';
-  
-  // Generar códigos de barras y QR
-  generarCodigoBarras();
-  generarQRCode();
-}
-
-function generarCodigoBarras() {
-  const lote = document.getElementById('lote').value;
-  JsBarcode("#barcode", lote, {
-    format: "CODE128",
-    displayValue: true,
-    fontSize: 16,
-    height: 60,
-    margin: 10
-  });
-}
-
-function generarQRCode() {
-  const lote = document.getElementById('lote').value;
-  const codigo = document.getElementById('codigo').value;
-  const caducidad = document.getElementById('cad_dia').value + '/' + 
-                    document.getElementById('cad_mes').value + '/' + 
-                    document.getElementById('cad_anio').value;
-  
-  const qrContent = `COD:${codigo}|LOTE:${lote}|CAD:${caducidad}|UID:${currentUID}`;
-  
-  document.getElementById('qrcode').innerHTML = '';
-  new QRCode(document.getElementById('qrcode'), {
-    text: qrContent,
-    width: 150,
-    height: 150,
-    colorDark : "#000000",
-    colorLight : "#ffffff",
-    correctLevel : QRCode.CorrectLevel.H
-  });
-}
 </script>
 </body>
 </html>
