@@ -45,16 +45,12 @@ input.mono{ font-family:ui-monospace,Consolas,monospace }
   body *{ visibility:hidden }
   .etiqueta, .etiqueta *{ visibility:visible }
   .etiqueta{
-    /* centrado real en la hoja */
     position:absolute; left:50%; top:50%;
-    /* tamaño de carta exacto */
-    width:21.59cm; height:27.94cm;
-    /* colchón para que NUNCA salte a 2 hojas (ajusta 0.93↔0.92/0.94 según tu driver) */
-    transform: translate(-50%, -50%) scale(0.93);
+    width:20.5cm; height:27cm;
+    transform: translate(-50%,-50%) scale(0.92);  /* centrado y ajustado */
     transform-origin: center center;
     page-break-after: avoid; page-break-inside: avoid;
     overflow: hidden;
-    margin: 0;
   }
 }
 </style>
@@ -85,51 +81,7 @@ input.mono{ font-family:ui-monospace,Consolas,monospace }
       <option value="10518" data-desc="ROCAINOL CREMA ACCION TERMICA 150G" data-pieza="12" data-cajas="1">10518 - ROCAINOL TERMICA</option>
     </select>
 
-    <!-- Predicción de Lote -->
-    <div id="loteModeWrap" style="display:none;margin-top:6px">
-      <label>Modo de Lote</label>
-      <div class="inline">
-        <label class="inline"><input type="radio" name="loteMode" id="modeAuto" value="auto"> Auto (WGH0 + 4 dígitos)</label>
-        <label class="inline"><input type="radio" name="loteMode" id="modeManual" value="manual"> Manual</label>
-      </div>
-      <div id="autoLoteGroup" class="row" style="margin-top:8px;display:none">
-        <div>
-          <label>Últimos 4 dígitos</label>
-          <input id="last4" maxlength="4" class="mono" placeholder="Ej. 6037">
-        </div>
-        <div>
-          <div class="muted">Prefijo aplicado automáticamente:</div>
-          <input id="previewAuto" class="mono" readonly>
-        </div>
-      </div>
-    </div>
-
-    <div class="row">
-      <div><label>Código de Producto</label><input id="codigo" readonly class="mono"></div>
-      <div><label>Cajas por Tarima</label><input id="cajas" readonly class="mono"></div>
-      <div><label>Pz por Caja</label><input id="pieza" readonly class="mono"></div>
-      <div><label>Pz por Tarima</label><input id="pz" readonly class="mono"></div>
-    </div>
-
-    <label>Total de Piezas</label>
-    <input id="totalPiezas" readonly class="mono">
-
-    <label>Descripción</label><input id="descripcion" readonly>
-
-    <label>Lote</label>
-    <input id="lote" class="mono">
-
-    <label>Caducidad</label>
-    <div class="row">
-      <select id="cad_dia"></select>
-      <select id="cad_mes"></select>
-      <select id="cad_anio"></select>
-    </div>
-
-    <div class="inline">
-      <button class="btn" id="btnImprimir">Imprimir en tamaño carta</button>
-      <button class="btn" id="btnPDF">Exportar a PDF</button>
-    </div>
+    <!-- resto del formulario igual... -->
   </div>
 </div>
 
@@ -153,198 +105,6 @@ input.mono{ font-family:ui-monospace,Consolas,monospace }
   <div class="barbox"><svg id="barcode"></svg></div>
 </div>
 
-<!-- Librerías -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
-
-<script>
-/* ===== Config ===== */
-const wghProducts = new Set(['10558','10559','10560','10561','10562','10563']);
-const digitsOnly = s => (s||'').replace(/\D+/g,'');
-
-/* ===== UID oculto ===== */
-let currentUID = '';
-const todayKey = () => {
-  const d=new Date(), y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), dd=String(d.getDate()).padStart(2,'0');
-  return `${y}${m}${dd}`;
-};
-function nextUID(){
-  const key='ksk_folio_'+todayKey();
-  let n=parseInt(localStorage.getItem(key)||'0',10)+1;
-  localStorage.setItem(key,String(n));
-  return `${todayKey()}-${String(n).padStart(4,'0')}`;
-}
-function ensureUID(){ if(!currentUID) currentUID = nextUID(); }
-
-/* ===== Caducidad (selects) ===== */
-function poblarSelects(){
-  const dSel=document.getElementById('cad_dia');
-  const mSel=document.getElementById('cad_mes');
-  const ySel=document.getElementById('cad_anio');
-  dSel.innerHTML='<option value="">Día</option>';
-  for(let d=1; d<=31; d++) dSel.innerHTML+=`<option value="${d}">${d}</option>`;
-  mSel.innerHTML='<option value="">Mes</option>';
-  for(let m=1; m<=12; m++) mSel.innerHTML+=`<option value="${m}">${m}</option>`;
-  const y0=new Date().getFullYear();
-  ySel.innerHTML='<option value="">Año</option>';
-  for(let y=y0; y<=y0+15; y++) ySel.innerHTML+=`<option value="${y}">${y}</option>`;
-  const now=new Date();
-  dSel.value=String(now.getDate());
-  mSel.value=String(now.getMonth()+1);
-  ySel.value=String(now.getFullYear());
-}
-
-/* ===== Autorrelleno de producto ===== */
-function rellenarProducto(){
-  const sel = document.getElementById('producto');
-  const opt = sel.options[sel.selectedIndex];
-  if(!opt) return;
-  const piezas = parseInt(opt.getAttribute('data-pieza')||'0',10);
-  const cajas  = parseInt(opt.getAttribute('data-cajas')||'0',10);
-  const pztar  = piezas*cajas;
-
-  document.getElementById('codigo').value = opt.value || '';
-  document.getElementById('descripcion').value = opt.getAttribute('data-desc') || '';
-  document.getElementById('cajas').value = cajas ? String(cajas) : '';
-  document.getElementById('pieza').value = piezas ? String(piezas) : '';
-  document.getElementById('pz').value = pztar ? String(pztar) : '';
-  document.getElementById('totalPiezas').value = pztar ? String(pztar) : '';
-
-  updateLoteControls();
-  generarEtiqueta();
-}
-
-/* ===== Lote: WGH0 + 4 dígitos o manual ===== */
-function updateLoteControls(){
-  const val = document.getElementById('producto').value;
-  const wrap = document.getElementById('loteModeWrap');
-  const autoGroup = document.getElementById('autoLoteGroup');
-  const loteInput = document.getElementById('lote');
-  const mA = document.getElementById('modeAuto');
-  const mM = document.getElementById('modeManual');
-
-  if(wghProducts.has(val)){
-    wrap.style.display='block';
-    if(!mA.checked && !mM.checked) mA.checked = true;
-    const isAuto = mA.checked;
-    autoGroup.style.display = isAuto ? 'grid' : 'none';
-    loteInput.readOnly = isAuto;
-    if(isAuto) applyAutoLote();
-  } else {
-    wrap.style.display='none';
-    const l4=document.getElementById('last4'), prev=document.getElementById('previewAuto');
-    if(l4) l4.value=''; if(prev) prev.value='';
-    if(mA) mA.checked=false; if(mM) mM.checked=true;
-    loteInput.readOnly=false;
-  }
-}
-function applyAutoLote(){
-  const l4=document.getElementById('last4');
-  if(!l4) return;
-  const four = digitsOnly(l4.value).slice(0,4);
-  l4.value=four;
-  const lote='WGH0'+four.padStart(4,'0');
-  const prev=document.getElementById('previewAuto');
-  if(prev) prev.value=lote;
-  if(document.getElementById('modeAuto').checked){
-    document.getElementById('lote').value=lote;
-  }
-  generarEtiqueta();
-}
-
-/* ===== Construir payload para QR/Barcode =====
-   Orden: Picker, UID, Código, Descripción, Lote, Caducidad, Cajas/Tarima, Pz/Caja, Pz/Tarima
-*/
-function buildPayload(){
-  ensureUID();
-  const SEP='\t', END='\r';
-  const picker=document.getElementById('picker').value;
-  const codigo=document.getElementById('codigo').value;
-  const desc=document.getElementById('descripcion').value;
-  const lote=document.getElementById('lote').value;
-  const d=document.getElementById('cad_dia').value;
-  const m=document.getElementById('cad_mes').value;
-  const y=document.getElementById('cad_anio').value;
-  const cad=(d&&m&&y)?`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`:'';
-  const cajas=document.getElementById('cajas').value;
-  const pieza=document.getElementById('pieza').value;
-  const pztar=document.getElementById('pz').value;
-  return [picker,currentUID,codigo,desc,lote,cad,cajas,pieza,pztar].join(SEP)+END;
-}
-
-/* ===== Pintar etiqueta (y QR/Code128) ===== */
-let qr;
-function makeQR(text){
-  const node=document.getElementById('qrcode');
-  node.innerHTML='';
-  qr=new QRCode(node,{text,width:170,height:170,correctLevel:QRCode.CorrectLevel.M});
-}
-function generarEtiqueta(){
-  // Caducidad visible
-  const d=document.getElementById('cad_dia').value;
-  const m=document.getElementById('cad_mes').value;
-  const y=document.getElementById('cad_anio').value;
-  const cad=(d&&m&&y)?`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`:'';
-  document.getElementById('e_caducidad').textContent=cad;
-
-  // Recalcular totales (por si cambió algo)
-  const pcs=parseInt(document.getElementById('pieza').value||'0',10);
-  const cjs=parseInt(document.getElementById('cajas').value||'0',10);
-  const pzt=cjs*pcs;
-  document.getElementById('pz').value=pzt||'';
-  document.getElementById('totalPiezas').value=pzt||'';
-
-  // Copiar a etiqueta
-  const sel=document.getElementById('producto');
-  const prodTxt= sel.value ? sel.options[sel.selectedIndex].text : '';
-  document.getElementById('e_picker').textContent=document.getElementById('picker').value;
-  document.getElementById('e_producto').textContent=prodTxt;
-  document.getElementById('e_codigo').textContent=document.getElementById('codigo').value;
-  document.getElementById('e_descripcion').textContent=document.getElementById('descripcion').value;
-  document.getElementById('e_cajas').textContent=document.getElementById('cajas').value;
-  document.getElementById('e_pieza').textContent=document.getElementById('pieza').value;
-  document.getElementById('e_pz').textContent=document.getElementById('pz').value;
-  document.getElementById('e_totalPiezas').textContent=document.getElementById('totalPiezas').value;
-  document.getElementById('e_lote').textContent=document.getElementById('lote').value;
-
-  const hoy=new Date();
-  document.getElementById('e_fecha').textContent=hoy.toLocaleDateString('es-MX',{year:'numeric',month:'2-digit',day:'2-digit'});
-  document.getElementById('etiqueta').style.display='block';
-
-  const payload=buildPayload();
-  makeQR(payload);
-  try{
-    JsBarcode('#barcode', payload, {format:'CODE128',lineColor:'#000',width:2,height:60,displayValue:false,margin:0});
-  }catch(e){ document.getElementById('barcode').innerHTML=''; }
-}
-
-/* ===== Imprimir / PDF ===== */
-function printWithUID(){ ensureUID(); generarEtiqueta(); window.print(); }
-function exportarPDF(){
-  ensureUID(); generarEtiqueta();
-  if(typeof html2pdf==='undefined'){ alert('No se pudo cargar html2pdf.'); return; }
-  const codigo=(document.getElementById('codigo').value||'PROD');
-  const fecha=(document.getElementById('e_fecha').textContent||'FECHA').replaceAll('/','-');
-  html2pdf().set({
-    margin:0, filename:`${codigo}_${fecha}.pdf`,
-    image:{type:'jpeg',quality:1}, html2canvas:{scale:2},
-    jsPDF:{unit:'cm',format:'letter',orientation:'portrait'}
-  }).from(document.getElementById('etiqueta')).save();
-}
-
-/* ===== Listeners robustos ===== */
-document.addEventListener('DOMContentLoaded', ()=>{
-  poblarSelects();
-  document.getElementById('producto').addEventListener('change', rellenarProducto);
-  const l4=document.getElementById('last4');
-  if(l4){ l4.addEventListener('input', applyAutoLote); l4.addEventListener('change', applyAutoLote); }
-  document.getElementById('modeAuto').addEventListener('change', updateLoteControls);
-  document.getElementById('modeManual').addEventListener('change', updateLoteControls);
-  document.getElementById('btnImprimir').addEventListener('click', printWithUID);
-  document.getElementById('btnPDF').addEventListener('click', exportarPDF);
-  generarEtiqueta();
-});
-</script>
+<!-- scripts (igual que ya tienes) -->
 </body>
 </html>
