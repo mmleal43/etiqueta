@@ -38,20 +38,22 @@ input.mono{ font-family:ui-monospace,Consolas,monospace }
 .barbox{ position:absolute; left:32px; bottom:32px; width:60%; max-width:520px; border:1px solid #000; background:#fff; padding:8px }
 #barcode{ width:100%; height:120px }
 
-/* FORZAR 1 HOJA CARTA, CENTRADA */
+/* FORZAR 1 HOJA CARTA AL IMPRIMIR (centrada y a escala) */
 @page{ size: letter; margin: 0 }
 @media print{
-  body{ background:#fff }
-  body *{ visibility:hidden }
+  body{ background:#fff !important }
+  body *{ visibility:hidden !important }
+  .etiqueta, .etiqueta *{ visibility:visible !important }
   .etiqueta{
-    position:absolute;
-    left:50%; top:50%;
-    width:20.5cm; height:27cm;     
-    transform: translate(-50%,-50%) scale(0.95);  
-    transform-origin: center center;
-    page-break-after: avoid; page-break-inside: avoid;
-    overflow: hidden;
-}
+    position:absolute !important;
+    left:50% !important; top:50% !important;
+    width:20.5cm !important;   /* margen de seguridad para no cortar */
+    height:27cm !important;
+    margin:0 !important;
+    transform: translate(-50%,-50%) scale(0.95) !important; /* ocupa más hoja sin desbordar */
+    transform-origin: center center !important;
+    page-break-after: avoid !important; page-break-inside: avoid !important;
+    overflow:hidden !important;
   }
 }
 </style>
@@ -213,6 +215,7 @@ function rellenarProducto(){
 }
 
 /* ===== Lote: WGH0 + 4 dígitos o manual ===== */
+const wghProductsForLote = new Set(['10558','10559','10560','10561','10562','10563']);
 function updateLoteControls(){
   const val = document.getElementById('producto').value;
   const wrap = document.getElementById('loteModeWrap');
@@ -221,7 +224,7 @@ function updateLoteControls(){
   const mA = document.getElementById('modeAuto');
   const mM = document.getElementById('modeManual');
 
-  if(wghProducts.has(val)){
+  if(wghProductsForLote.has(val)){
     wrap.style.display='block';
     if(!mA.checked && !mM.checked) mA.checked = true;
     const isAuto = mA.checked;
@@ -285,7 +288,7 @@ function generarEtiqueta(){
   const cad=(d&&m&&y)?`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`:'';
   document.getElementById('e_caducidad').textContent=cad;
 
-  // Recalcular totales (por si cambió algo)
+  // Recalcular totales
   const pcs=parseInt(document.getElementById('pieza').value||'0',10);
   const cjs=parseInt(document.getElementById('cajas').value||'0',10);
   const pzt=cjs*pcs;
