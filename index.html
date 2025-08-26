@@ -43,15 +43,15 @@ input.mono{ font-family:ui-monospace,Consolas,monospace }
 @media print{
   body{ background:#fff }
   body *{ visibility:hidden }
-  .etiqueta, .etiqueta *{ visibility:visible }
-  .etiqueta{
+  .etiqueta, ..etiqueta{
     position:absolute;
     left:50%; top:50%;
-    width:20.5cm; height:27cm;     /* margen interno de seguridad */
-    transform: translate(-50%,-50%) scale(0.92);  /* centrado + 1 hoja */
+    width:20.5cm; height:27cm;     
+    transform: translate(-50%,-50%) scale(0.95);  
     transform-origin: center center;
     page-break-after: avoid; page-break-inside: avoid;
     overflow: hidden;
+}
   }
 }
 </style>
