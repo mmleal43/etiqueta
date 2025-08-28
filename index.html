@@ -8,15 +8,13 @@
 :root{
   --carta-w:21.59cm; --carta-h:27.94cm;
 
-  /* ===== IMPRESIÓN (ajuste fino) ===== */
-  --print-w:19.10cm;
-  --print-h:21.50cm;   /* forzar 1 sola hoja */
-  --print-top:-2.40cm; /* más arriba; hazlo más negativo si quieres subir aún más */
-  --print-bottom:0cm;
-
-  /* Tipografías grandes */
-  --font-title:40px;
-  --font-body:22px;
+  /* ===== AJUSTES FINOS DE IMPRESIÓN =====
+     Más arriba: hacer --print-top más NEGATIVO.
+     Si vuelve a salir 2 páginas, baja un poco --print-h. */
+  --print-w:19.1cm;      /* ancho seguro */
+  --print-h:22.30cm;     /* alto recortado (1 hoja) */
+  --print-top:-1.50cm;   /* AÚN MÁS ARRIBA */
+  --print-bottom:0.10cm; /* margen inferior mínimo */
 }
 
 *{ box-sizing:border-box }
@@ -44,18 +42,15 @@ input.mono{ font-family:ui-monospace,Consolas,monospace }
   background:#fff; color:#000; border:1px solid #000; padding:28px;
   display:none; position:relative; overflow:hidden;
 }
-.etiqueta .titulo{
-  text-align:center; font-size:var(--font-title); font-weight:900;
-  color:#003366; margin-bottom:10px
-}
+.etiqueta .titulo{ text-align:center; font-size:32px; font-weight:900; color:#003366; margin-bottom:10px }
 .grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px 18px }
-.campo{ font-size:var(--font-body); line-height:1.25 }
-.campo b{ display:inline-block; min-width:220px } /* más ancho para la letra grande */
+.campo{ font-size:18px; line-height:1.25 }
+.campo b{ display:inline-block; min-width:190px }
 
-/* Solo QR, centrado */
+/* Solo QR, centrado abajo */
 .qrbox{
   position:absolute; left:50%; bottom:16px; transform:translateX(-50%);
-  width:240px; height:240px; border:1px solid #000; background:#fff;
+  width:210px; height:210px; border:1px solid #000; background:#fff;
   display:flex; align-items:center; justify-content:center;
 }
 
@@ -85,13 +80,7 @@ input.mono{ font-family:ui-monospace,Consolas,monospace }
   <div class="formulario">
     <label>Picker (usuario)</label>
     <select id="picker">
-      <option>VÍCTOR</option>
-      <option>EDSON</option>
-      <option>IRVING</option>
-      <option>ENRIQUE</option>
-      <option>CARLOS</option>
-      <option>JESÚS</option>
-      <option>MANUEL</option>
+      <option>Victor</option><option>Edson</option><option>Irving</option>
     </select>
 
     <label>Producto</label>
@@ -185,13 +174,14 @@ input.mono{ font-family:ui-monospace,Consolas,monospace }
 /* ========= Helpers ========= */
 const wghProducts = new Set(['10558','10559','10560','10561','10562','10563']);
 const digitsOnly = s => (s||'').replace(/\D+/g,'');
-const $ = id => document.getElementById(id);
 
 /* UID */
 let currentUID = '';
 function todayKey(){ const d=new Date(); return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`; }
 function nextUID(){ const k='ksk_folio_'+todayKey(); const n=(+localStorage.getItem(k)||0)+1; localStorage.setItem(k,n); return `${todayKey()}-${String(n).padStart(4,'0')}`; }
 function ensureUID(){ if(!currentUID) currentUID = nextUID(); }
+
+const $ = id => document.getElementById(id);
 
 /* Caducidad */
 function poblarSelects(){
@@ -260,12 +250,7 @@ function buildPayload(){
 
 /* Render etiqueta */
 let qr;
-function makeQR(){
-  const box=$('qrcode');
-  box.innerHTML='';
-  const size=Math.floor(box.parentElement.getBoundingClientRect().width-18);
-  qr=new QRCode(box,{text:buildPayload(),width:size,height:size,correctLevel:QRCode.CorrectLevel.M});
-}
+function makeQR(text){ const n=$('qrcode'); n.innerHTML=''; qr=new QRCode(n,{text,width:200,height:200,correctLevel:QRCode.CorrectLevel.M}); }
 function generarEtiqueta(){
   const d=$('cad_dia').value, m=$('cad_mes').value, y=$('cad_anio').value;
   $('e_caducidad').textContent=(d&&m&&y)?`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`:'';
@@ -286,11 +271,14 @@ function generarEtiqueta(){
   $('e_fecha').textContent=new Date().toLocaleDateString('es-MX',{year:'numeric',month:'2-digit',day:'2-digit'});
 
   $('etiqueta').style.display='block';
-  makeQR();
+  makeQR(buildPayload());
 }
 
 /* Imprimir / PDF */
-function printWithUID(e){ e.preventDefault(); ensureUID(); generarEtiqueta(); setTimeout(()=>window.print(),10); }
+function printWithUID(e){
+  e.preventDefault(); ensureUID(); generarEtiqueta();
+  setTimeout(()=>window.print(),10);
+}
 function exportarPDF(e){
   e.preventDefault(); ensureUID(); generarEtiqueta();
   if(typeof html2pdf==='undefined'){ alert('No se pudo cargar html2pdf.'); return; }
