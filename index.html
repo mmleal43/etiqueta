@@ -7,68 +7,68 @@
 <style>
 :root{
   --carta-w:21.59cm; --carta-h:27.94cm;
-
-  /* ===== AJUSTES FINOS DE IMPRESIÓN =====
-     Más arriba: hacer --print-top más NEGATIVO.
-     Si vuelve a salir 2 páginas, baja un poco --print-h. */
-  --print-w:19.1cm;      /* ancho seguro */
-  --print-h:22.30cm;     /* alto recortado (1 hoja) */
-  --print-top:-1.50cm;   /* AÚN MÁS ARRIBA */
-  --print-bottom:0.10cm; /* margen inferior mínimo */
+  /* Desktop por defecto */
+  --print-w:18.8cm;
+  --print-h:21.8cm;
+  --print-top:-2.3cm;
+  --print-bottom:0;
 }
-
-*{ box-sizing:border-box }
-html,body{ margin:0; padding:0 }
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
 body{
   font-family:'Segoe UI',Tahoma,Verdana,sans-serif;
   background:radial-gradient(circle at top,#0f2027,#203a43,#2c5364);
   color:#e0e0e0; min-height:100vh; display:grid; place-items:center;
 }
-.wrap{ width:min(100%,900px); padding:20px }
-h1{ text-align:center; color:#00e5ff; text-shadow:0 0 10px #00e5ff; margin:0 0 20px }
-.formulario{ background:rgba(20,20,30,.9); padding:20px; border-radius:16px; box-shadow:0 0 20px #00e5ff55 }
-label{ display:block; margin:12px 0 6px; font-weight:700; color:#90caf9 }
-select,input{ width:100%; padding:10px; border-radius:10px; border:none; background:#1c1f2b; color:#fff; font-size:15px }
-input.mono{ font-family:ui-monospace,Consolas,monospace }
-.btn{ display:inline-block; margin-top:14px; background:linear-gradient(90deg,#00e5ff,#2979ff); color:#000; font-weight:800; padding:12px 20px; border-radius:12px; border:none; cursor:pointer }
-.inline{ display:flex; gap:12px; flex-wrap:wrap; align-items:center }
-.muted{ color:#9bbbd4; font-size:12px }
-.row{ display:grid; grid-template-columns:1fr 1fr; gap:12px }
-@media (max-width:720px){ .row{ grid-template-columns:1fr } }
+.wrap{width:min(100%,900px);padding:20px}
+h1{text-align:center;color:#00e5ff;text-shadow:0 0 10px #00e5ff;margin:0 0 20px}
+.formulario{background:rgba(20,20,30,.9);padding:20px;border-radius:16px;box-shadow:0 0 20px #00e5ff55}
+label{display:block;margin:12px 0 6px;font-weight:700;color:#90caf9}
+select,input{width:100%;padding:10px;border-radius:10px;border:none;background:#1c1f2b;color:#fff;font-size:16px}
+input.mono{font-family:ui-monospace,Consolas,monospace}
+.btn{display:inline-block;margin-top:14px;background:linear-gradient(90deg,#00e5ff,#2979ff);color:#000;font-weight:800;padding:12px 20px;border-radius:12px;border:none;cursor:pointer}
+.inline{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.muted{color:#9bbbd4;font-size:12px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:720px){.row{grid-template-columns:1fr}}
 
-/* ===== ETIQUETA (preview) ===== */
+/* Vista previa etiqueta */
 .etiqueta{
-  width:var(--carta-w); height:var(--carta-h);
-  background:#fff; color:#000; border:1px solid #000; padding:28px;
-  display:none; position:relative; overflow:hidden;
+  width:var(--carta-w);height:var(--carta-h);
+  background:#fff;color:#000;border:1px solid #000;padding:28px;
+  display:none;position:relative;overflow:hidden;
 }
-.etiqueta .titulo{ text-align:center; font-size:32px; font-weight:900; color:#003366; margin-bottom:10px }
-.grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px 18px }
-.campo{ font-size:18px; line-height:1.25 }
-.campo b{ display:inline-block; min-width:190px }
-
-/* Solo QR, centrado abajo */
+.etiqueta .titulo{ text-align:center;font-size:40px;font-weight:900;color:#003366;margin-bottom:12px;letter-spacing:.5px }
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 20px}
+.campo{font-size:20px;line-height:1.3}
+.campo b{display:inline-block;min-width:210px}
 .qrbox{
-  position:absolute; left:50%; bottom:16px; transform:translateX(-50%);
-  width:210px; height:210px; border:1px solid #000; background:#fff;
-  display:flex; align-items:center; justify-content:center;
+  position:absolute;left:50%;bottom:14px;transform:translateX(-50%);
+  width:220px;height:220px;border:1px solid #000;background:#fff;
+  display:flex;align-items:center;justify-content:center;
 }
+#qrcode{width:210px;height:210px}
 
-/* ===== IMPRESIÓN ===== */
-@page{ size: letter; margin:0 }
+/* Impresión */
+@page{size:letter;margin:0}
 @media print{
-  .wrap{ display:none !important }
-  body{ background:#fff; -webkit-print-color-adjust:exact; print-color-adjust:exact }
+  .wrap{display:none !important}
+  body{background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   #etiqueta{
     display:block !important;
-    width:var(--print-w);
-    height:var(--print-h);
+    width:var(--print-w);height:var(--print-h);
     margin:var(--print-top) auto var(--print-bottom);
-    border:1px solid #000;
-    padding:22px;
-    overflow:hidden;
-    page-break-before:avoid; page-break-after:avoid; page-break-inside:avoid;
-    break-before:avoid-page; break-after:avoid-page; break-inside:avoid-page;
+    border:1px solid #000;padding:22px;overflow:hidden;
+    page-break-inside:avoid;break-inside:avoid-page;
+  }
+}
+/* Override fino para móviles */
+@media (max-width:820px){
+  :root{
+    --print-w:18.5cm;
+    --print-h:21.2cm;
+    --print-top:-3.4cm;   /* más arriba en Android */
+    --print-bottom:0;
   }
 }
 </style>
@@ -79,12 +79,13 @@ input.mono{ font-family:ui-monospace,Consolas,monospace }
 
   <div class="formulario">
     <label>Picker (usuario)</label>
-    <select id="picker">
-      <option>Victor</option><option>Edson</option><option>Irving</option>
+    <select id="picker" onchange="generarEtiqueta()" oninput="generarEtiqueta()">
+      <option>VÍCTOR</option><option>EDSON</option><option>IRVING</option>
+      <option>ENRIQUE</option><option>CARLOS</option><option>JESÚS</option><option>MANUEL</option>
     </select>
 
     <label>Producto</label>
-    <select id="producto">
+    <select id="producto" onchange="rellenarProducto()" oninput="rellenarProducto()">
       <option value="">-- Selecciona un producto --</option>
       <option value="10554" data-desc="SERUM CORPORAL HIDRATANTE 320 ML." data-pieza="48" data-cajas="120">10554 - SERUM HIDRATANTE</option>
       <option value="10555" data-desc="SERUM CORPORAL ACLARANTE 320 ML." data-pieza="48" data-cajas="120">10555 - SERUM ACLARANTE</option>
@@ -103,13 +104,13 @@ input.mono{ font-family:ui-monospace,Consolas,monospace }
     <div id="loteModeWrap" style="display:none;margin-top:6px">
       <label>Modo de Lote</label>
       <div class="inline">
-        <label class="inline"><input type="radio" name="loteMode" id="modeAuto" value="auto"> Auto (WGH0 + 4 dígitos)</label>
-        <label class="inline"><input type="radio" name="loteMode" id="modeManual" value="manual"> Manual</label>
+        <label class="inline"><input type="radio" name="loteMode" id="modeAuto" value="auto" onchange="updateLoteControls()"> Auto (WGH0 + 4 dígitos)</label>
+        <label class="inline"><input type="radio" name="loteMode" id="modeManual" value="manual" onchange="updateLoteControls()"> Manual</label>
       </div>
       <div id="autoLoteGroup" class="row" style="margin-top:8px;display:none">
         <div>
           <label>Últimos 4 dígitos</label>
-          <input id="last4" maxlength="4" class="mono" placeholder="Ej. 6037">
+          <input id="last4" maxlength="4" class="mono" placeholder="Ej. 6037" oninput="applyAutoLote()" onchange="applyAutoLote()">
         </div>
         <div>
           <div class="muted">Prefijo aplicado automáticamente:</div>
@@ -131,18 +132,18 @@ input.mono{ font-family:ui-monospace,Consolas,monospace }
     <label>Descripción</label><input id="descripcion" readonly>
 
     <label>Lote</label>
-    <input id="lote" class="mono">
+    <input id="lote" class="mono" placeholder="Ej. WGH01234" oninput="generarEtiqueta();saveState()" onchange="generarEtiqueta();saveState()">
 
     <label>Caducidad</label>
     <div class="row">
-      <select id="cad_dia"></select>
-      <select id="cad_mes"></select>
-      <select id="cad_anio"></select>
+      <select id="cad_dia" onchange="generarEtiqueta();saveState()"></select>
+      <select id="cad_mes" onchange="generarEtiqueta();saveState()"></select>
+      <select id="cad_anio" onchange="generarEtiqueta();saveState()"></select>
     </div>
 
     <div class="inline">
-      <button class="btn" id="btnImprimir" type="button">Imprimir en tamaño carta</button>
-      <button class="btn" id="btnPDF" type="button">Exportar a PDF</button>
+      <button class="btn" type="button" onclick="printWithUID(event)">Imprimir en tamaño carta</button>
+      <button class="btn" type="button" onclick="exportarPDF(event)">Exportar a PDF</button>
     </div>
   </div>
 </div>
@@ -171,135 +172,153 @@ input.mono{ font-family:ui-monospace,Consolas,monospace }
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
 
 <script>
-/* ========= Helpers ========= */
-const wghProducts = new Set(['10558','10559','10560','10561','10562','10563']);
-const digitsOnly = s => (s||'').replace(/\D+/g,'');
+/* ===== Helpers & estado ===== */
+const wghProducts=new Set(['10558','10559','10560','10561','10562','10563']);
+const digitsOnly=s=>(s||'').replace(/\D+/g,'');
+const $=id=>document.getElementById(id);
+
+/* Persistencia */
+function saveState(){
+  const st={
+    picker:$('picker').value, producto:$('producto').value,
+    codigo:$('codigo').value, desc:$('descripcion').value,
+    cajas:$('cajas').value, pieza:$('pieza').value, pz:$('pz').value, total:$('totalPiezas').value,
+    lote:$('lote').value, d:$('cad_dia').value, m:$('cad_mes').value, y:$('cad_anio').value,
+    modeAuto:$('modeAuto')?$('modeAuto').checked:false, last4:$('last4')?$('last4').value:''
+  };
+  localStorage.setItem('ksk_state', JSON.stringify(st));
+}
+function restoreState(){
+  try{
+    const st=JSON.parse(localStorage.getItem('ksk_state')||'null'); if(!st) return;
+    $('picker').value=st.picker||$('picker').value;
+    $('producto').value=st.producto||'';
+    $('codigo').value=st.codigo||'';
+    $('descripcion').value=st.desc||'';
+    $('cajas').value=st.cajas||'';
+    $('pieza').value=st.pieza||'';
+    $('pz').value=st.pz||'';
+    $('totalPiezas').value=st.total||'';
+    $('lote').value=st.lote||'';
+    $('cad_dia').value=st.d||'';
+    $('cad_mes').value=st.m||'';
+    $('cad_anio').value=st.y||'';
+    if (wghProducts.has(st.producto||'')){
+      document.getElementById('loteModeWrap').style.display='block';
+      $('modeAuto').checked=!!st.modeAuto;
+      $('modeManual').checked=!st.modeAuto;
+      document.getElementById('autoLoteGroup').style.display=st.modeAuto?'grid':'none';
+      if ($('last4')) $('last4').value=st.last4||'';
+    }
+  }catch(e){}
+}
 
 /* UID */
-let currentUID = '';
-function todayKey(){ const d=new Date(); return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`; }
-function nextUID(){ const k='ksk_folio_'+todayKey(); const n=(+localStorage.getItem(k)||0)+1; localStorage.setItem(k,n); return `${todayKey()}-${String(n).padStart(4,'0')}`; }
-function ensureUID(){ if(!currentUID) currentUID = nextUID(); }
-
-const $ = id => document.getElementById(id);
+let currentUID='';
+function todayKey(){const d=new Date();return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;}
+function nextUID(){const k='ksk_folio_'+todayKey();const n=(+localStorage.getItem(k)||0)+1;localStorage.setItem(k,n);return `${todayKey()}-${String(n).padStart(4,'0')}`;}
+function ensureUID(){if(!currentUID) currentUID=nextUID();}
 
 /* Caducidad */
 function poblarSelects(){
-  const dSel=$('cad_dia'), mSel=$('cad_mes'), ySel=$('cad_anio');
-  dSel.innerHTML='<option value="">Día</option>'; for(let d=1; d<=31; d++) dSel.innerHTML+=`<option value="${d}">${d}</option>`;
-  mSel.innerHTML='<option value="">Mes</option>'; for(let m=1; m<=12; m++) mSel.innerHTML+=`<option value="${m}">${m}</option>`;
-  const y0=new Date().getFullYear(); ySel.innerHTML='<option value="">Año</option>'; for(let y=y0; y<=y0+15; y++) ySel.innerHTML+=`<option value="${y}">${y}</option>`;
-  const now=new Date(); dSel.value=String(now.getDate()); mSel.value=String(now.getMonth()+1); ySel.value=String(now.getFullYear());
+  const dSel=$('cad_dia'),mSel=$('cad_mes'),ySel=$('cad_anio');
+  dSel.innerHTML='<option value="">Día</option>';for(let d=1;d<=31;d++)dSel.innerHTML+=`<option value="${d}">${d}</option>`;
+  mSel.innerHTML='<option value="">Mes</option>';for(let m=1;m<=12;m++)mSel.innerHTML+=`<option value="${m}">${m}</option>`;
+  const y0=new Date().getFullYear();ySel.innerHTML='<option value="">Año</option>';for(let y=y0;y<=y0+15;y++)ySel.innerHTML+=`<option value="${y}">${y}</option>`;
+  const now=new Date();dSel.value=String(now.getDate());mSel.value=String(now.getMonth()+1);ySel.value=String(now.getFullYear());
 }
 
-/* Autorrelleno producto */
+/* Producto -> autorrelleno */
 function rellenarProducto(){
-  const sel=$('producto'); const opt=sel.options[sel.selectedIndex]; if(!opt || !opt.value) return;
-  const piezasNum=parseInt(opt.dataset.pieza||'0',10);
-  const cajasNum=parseInt(opt.dataset.cajas||'0',10);
-  const pzTar=piezasNum*cajasNum;
-
-  $('codigo').value=opt.value;
-  $('descripcion').value=opt.dataset.desc||'';
-  $('cajas').value=cajasNum?String(cajasNum):'';
-  $('pieza').value=piezasNum?String(piezasNum):'';
-  $('pz').value=pzTar?String(pzTar):'';
-  $('totalPiezas').value=pzTar?String(pzTar):'';
-
-  updateLoteControls();
-  generarEtiqueta();
+  const sel=$('producto');const opt=sel.options[sel.selectedIndex];if(!opt||!opt.value){generarEtiqueta();return;}
+  const piezas=+opt.dataset.pieza||0;const cajas=+opt.dataset.cajas||0;const pzTar=piezas*cajas;
+  $('codigo').value=opt.value; $('descripcion').value=opt.dataset.desc||'';
+  $('cajas').value=cajas||''; $('pieza').value=piezas||''; $('pz').value=pzTar||''; $('totalPiezas').value=pzTar||'';
+  updateLoteControls(); saveState(); generarEtiqueta();
 }
 
-/* Lote auto/manual */
+/* Lote predictivo */
 function updateLoteControls(){
-  const val=$('producto').value, wrap=$('loteModeWrap'), group=$('autoLoteGroup'), loteIn=$('lote');
-  const mA=$('modeAuto'), mM=$('modeManual');
+  const val=$('producto').value,wrap=$('loteModeWrap'),group=$('autoLoteGroup'),loteIn=$('lote');
+  const mA=$('modeAuto'),mM=$('modeManual');
   if(wghProducts.has(val)){
-    wrap.style.display='block';
-    if(!mA.checked && !mM.checked) mA.checked=true;
-    const isAuto=mA.checked;
-    group.style.display=isAuto?'grid':'none';
-    loteIn.readOnly=isAuto;
+    wrap.style.display='block'; if(!mA.checked&&!mM.checked) mA.checked=true;
+    const isAuto=mA.checked; group.style.display=isAuto?'grid':'none'; loteIn.readOnly=isAuto;
     if(isAuto) applyAutoLote();
   }else{
-    wrap.style.display='none';
-    $('last4')&&($('last4').value=''); $('previewAuto')&&($('previewAuto').value='');
-    mA.checked=false; mM.checked=true; loteIn.readOnly=false;
+    wrap.style.display='none'; if ($('last4')) $('last4').value=''; if ($('previewAuto')) $('previewAuto').value='';
+    if(mA&&mM){mA.checked=false;mM.checked=true;} loteIn.readOnly=false;
   }
+  saveState();
 }
 function applyAutoLote(){
   const l4=$('last4'); if(!l4) return;
   const four=digitsOnly(l4.value).slice(0,4); l4.value=four;
-  const lote='WGH0'+four.padStart(4,'0');
-  $('previewAuto')&&($('previewAuto').value=lote);
+  const lote='WGH0'+four.padStart(4,'0'); if($('previewAuto')) $('previewAuto').value=lote;
   if($('modeAuto').checked) $('lote').value=lote;
-  generarEtiqueta();
+  saveState(); generarEtiqueta();
 }
 
-/* Payload QR */
+/* QR */
 function buildPayload(){
   ensureUID();
-  const SEP='\t', END='\r';
-  const d=$('cad_dia').value, m=$('cad_mes').value, y=$('cad_anio').value;
+  const SEP='\t',END='\r';
+  const d=$('cad_dia').value,m=$('cad_mes').value,y=$('cad_anio').value;
   const cad=(d&&m&&y)?`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`:'';
-  return [
-    $('picker').value, currentUID, $('codigo').value, $('descripcion').value,
-    $('lote').value, cad, $('cajas').value, $('pieza').value, $('pz').value
-  ].join(SEP)+END;
+  return [ $('picker').value,currentUID,$('codigo').value,$('descripcion').value,$('lote').value,cad,$('cajas').value,$('pieza').value,$('pz').value ].join(SEP)+END;
+}
+function makeQR(text){
+  const node=$('qrcode'); node.innerHTML='';
+  if(window.QRCode){
+    new QRCode(node,{text,width:210,height:210,correctLevel:QRCode.CorrectLevel.M});
+  }else{
+    const img=new Image(); img.width=210; img.height=210; img.alt='QR';
+    img.src='https://api.qrserver.com/v1/create-qr-code/?size=210x210&data='+encodeURIComponent(text);
+    node.appendChild(img);
+  }
 }
 
 /* Render etiqueta */
-let qr;
-function makeQR(text){ const n=$('qrcode'); n.innerHTML=''; qr=new QRCode(n,{text,width:200,height:200,correctLevel:QRCode.CorrectLevel.M}); }
 function generarEtiqueta(){
-  const d=$('cad_dia').value, m=$('cad_mes').value, y=$('cad_anio').value;
+  const d=$('cad_dia').value,m=$('cad_mes').value,y=$('cad_anio').value;
   $('e_caducidad').textContent=(d&&m&&y)?`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`:'';
+  const pcs=+($('pieza').value||0),cjs=+($('cajas').value||0),pzt=cjs*pcs; $('pz').value=pzt||''; $('totalPiezas').value=pzt||'';
 
-  const pcs=parseInt($('pieza').value||'0',10), cjs=parseInt($('cajas').value||'0',10), pzt=cjs*pcs;
-  $('pz').value=pzt||''; $('totalPiezas').value=pzt||'';
-
-  const sel=$('producto'); const prodTxt= sel.value ? sel.options[sel.selectedIndex].text : '';
-  $('e_picker').textContent=$('picker').value;
-  $('e_producto').textContent=prodTxt;
-  $('e_codigo').textContent=$('codigo').value;
-  $('e_descripcion').textContent=$('descripcion').value;
-  $('e_cajas').textContent=$('cajas').value;
-  $('e_pieza').textContent=$('pieza').value;
-  $('e_pz').textContent=$('pz').value;
-  $('e_totalPiezas').textContent=$('totalPiezas').value;
+  const sel=$('producto'); const prodTxt= sel.value? sel.options[sel.selectedIndex].text : '';
+  $('e_picker').textContent=$('picker').value; $('e_producto').textContent=prodTxt;
+  $('e_codigo').textContent=$('codigo').value; $('e_descripcion').textContent=$('descripcion').value;
+  $('e_cajas').textContent=$('cajas').value; $('e_pieza').textContent=$('pieza').value;
+  $('e_pz').textContent=$('pz').value; $('e_totalPiezas').textContent=$('totalPiezas').value;
   $('e_lote').textContent=$('lote').value;
   $('e_fecha').textContent=new Date().toLocaleDateString('es-MX',{year:'numeric',month:'2-digit',day:'2-digit'});
-
   $('etiqueta').style.display='block';
   makeQR(buildPayload());
 }
 
 /* Imprimir / PDF */
 function printWithUID(e){
-  e.preventDefault(); ensureUID(); generarEtiqueta();
-  setTimeout(()=>window.print(),10);
+  e && e.preventDefault(); ensureUID(); generarEtiqueta(); saveState();
+  window.print(); // directo para que Android no lo bloquee
 }
 function exportarPDF(e){
-  e.preventDefault(); ensureUID(); generarEtiqueta();
-  if(typeof html2pdf==='undefined'){ alert('No se pudo cargar html2pdf.'); return; }
+  e && e.preventDefault(); ensureUID(); generarEtiqueta(); saveState();
+  if(typeof html2pdf==='undefined'){ return window.print(); }
   const nombre=`${$('codigo').value||'PROD'}_${$('e_fecha').textContent.replaceAll('/','-')}.pdf`;
-  html2pdf().set({
-    margin:0, filename:nombre,
-    image:{type:'jpeg',quality:1}, html2canvas:{scale:2},
-    jsPDF:{unit:'cm',format:'letter',orientation:'portrait'}
-  }).from($('etiqueta')).save();
+  html2pdf().set({margin:0,filename:nombre,image:{type:'jpeg',quality:1},html2canvas:{scale:2},jsPDF:{unit:'cm',format:'letter',orientation:'portrait'}})
+            .from($('etiqueta')).save();
 }
 
-/* Listeners */
-document.addEventListener('DOMContentLoaded',()=>{
+/* Boot: espera a que carguen librerías (móvil) */
+window.addEventListener('load', ()=>{
   poblarSelects();
-  $('producto').addEventListener('change', rellenarProducto);
-  $('modeAuto').addEventListener('change', updateLoteControls);
-  $('modeManual').addEventListener('change', updateLoteControls);
-  $('last4') && $('last4').addEventListener('input', applyAutoLote);
-  $('btnImprimir').addEventListener('click', printWithUID);
-  $('btnPDF').addEventListener('click', exportarPDF);
+  restoreState();           // recuperar lo escaneado si recargó
+  if ($('producto').value) updateLoteControls();
   generarEtiqueta();
+  // Guardar ante cualquier cambio de inputs/selects
+  document.querySelectorAll('input,select').forEach(el=>{
+    el.addEventListener('change', saveState);
+    el.addEventListener('input', saveState);
+  });
 });
 </script>
 </body>
