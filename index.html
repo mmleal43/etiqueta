@@ -1,20 +1,20 @@
 <!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8" />
+<!-- saved from url=(0036)https://mmleal43.github.io/etiqueta/ -->
+<html lang="es"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
 <title>ALDISAN-KSK – Generador de Etiquetas</title>
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
 :root{
   --carta-w:21.59cm; --carta-h:27.94cm;
 
-  /* ===== AJUSTES FINOS DE IMPRESIÓN (móvil) =====
-     Más arriba  -> hacer --print-top más NEGATIVO.
-     Si sale 2 hojas -> bajar un poco --print-h. */
-  --print-w:18.8cm;      /* ancho seguro para móvil */
-  --print-h:21.80cm;     /* alto recortado (garantiza 1 hoja) */
-  --print-top:-2.30cm;   /* SUBIDO AÚN MÁS */
-  --print-bottom:0;      /* sin margen abajo */
+  /* ===== AJUSTES FINOS DE IMPRESIÓN =====
+     Más arriba: hacer --print-top más NEGATIVO.
+     Si vuelve a salir 2 páginas, baja un poco --print-h. */
+  --print-w:19.1cm;      /* ancho seguro */
+  --print-h:22.30cm;     /* alto recortado (1 hoja) */
+  --print-top:-1.50cm;   /* AÚN MÁS ARRIBA */
+  --print-bottom:0.10cm; /* margen inferior mínimo */
 }
 
 *{ box-sizing:border-box }
@@ -28,7 +28,7 @@ body{
 h1{ text-align:center; color:#00e5ff; text-shadow:0 0 10px #00e5ff; margin:0 0 20px }
 .formulario{ background:rgba(20,20,30,.9); padding:20px; border-radius:16px; box-shadow:0 0 20px #00e5ff55 }
 label{ display:block; margin:12px 0 6px; font-weight:700; color:#90caf9 }
-select,input{ width:100%; padding:10px; border-radius:10px; border:none; background:#1c1f2b; color:#fff; font-size:16px }
+select,input{ width:100%; padding:10px; border-radius:10px; border:none; background:#1c1f2b; color:#fff; font-size:15px }
 input.mono{ font-family:ui-monospace,Consolas,monospace }
 .btn{ display:inline-block; margin-top:14px; background:linear-gradient(90deg,#00e5ff,#2979ff); color:#000; font-weight:800; padding:12px 20px; border-radius:12px; border:none; cursor:pointer }
 .inline{ display:flex; gap:12px; flex-wrap:wrap; align-items:center }
@@ -36,23 +36,21 @@ input.mono{ font-family:ui-monospace,Consolas,monospace }
 .row{ display:grid; grid-template-columns:1fr 1fr; gap:12px }
 @media (max-width:720px){ .row{ grid-template-columns:1fr } }
 
-/* ===== ETIQUETA (preview en pantalla) ===== */
+/* ===== ETIQUETA (preview) ===== */
 .etiqueta{
   width:var(--carta-w); height:var(--carta-h);
   background:#fff; color:#000; border:1px solid #000; padding:28px;
   display:none; position:relative; overflow:hidden;
 }
-.etiqueta .titulo{
-  text-align:center; font-size:40px; font-weight:900; color:#003366; margin-bottom:12px; letter-spacing:.5px;
-}
-.grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px 20px }
-.campo{ font-size:20px; line-height:1.3 }
-.campo b{ display:inline-block; min-width:210px }
+.etiqueta .titulo{ text-align:center; font-size:32px; font-weight:900; color:#003366; margin-bottom:10px }
+.grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px 18px }
+.campo{ font-size:18px; line-height:1.25 }
+.campo b{ display:inline-block; min-width:190px }
 
 /* Solo QR, centrado abajo */
 .qrbox{
-  position:absolute; left:50%; bottom:14px; transform:translateX(-50%);
-  width:220px; height:220px; border:1px solid #000; background:#fff;
+  position:absolute; left:50%; bottom:16px; transform:translateX(-50%);
+  width:210px; height:210px; border:1px solid #000; background:#fff;
   display:flex; align-items:center; justify-content:center;
 }
 
@@ -82,30 +80,23 @@ input.mono{ font-family:ui-monospace,Consolas,monospace }
   <div class="formulario">
     <label>Picker (usuario)</label>
     <select id="picker">
-      <option>VÍCTOR</option>
-      <option>EDSON</option>
-      <option>IRVING</option>
-      <option>ENRIQUE</option>
-      <option>CARLOS</option>
-      <option>JESÚS</option>
-      <option>MANUEL</option>
+      <option>Victor</option><option>Edson</option><option>Irving</option>
     </select>
 
     <label>Producto</label>
     <select id="producto">
       <option value="">-- Selecciona un producto --</option>
-      <!-- Catálogo ORDENADO ascendente por código -->
-      <option value="10518" data-desc="ROCAINOL CREMA ACCION TERMICA 150G" data-pieza="12" data-cajas="1">10518 - ROCAINOL TERMICA</option>
       <option value="10554" data-desc="SERUM CORPORAL HIDRATANTE 320 ML." data-pieza="48" data-cajas="120">10554 - SERUM HIDRATANTE</option>
       <option value="10555" data-desc="SERUM CORPORAL ACLARANTE 320 ML." data-pieza="48" data-cajas="120">10555 - SERUM ACLARANTE</option>
       <option value="10556" data-desc="SERUM CORPORAL REAFIRMANTE 320 ML." data-pieza="48" data-cajas="120">10556 - SERUM REAFIRMANTE</option>
       <option value="10557" data-desc="VITACILINA SUEROX CORPORAL DE 300ML" data-pieza="48" data-cajas="120">10557 - VITACILINA SUEROX</option>
       <option value="10558" data-desc="EMULSION CORPORAL DERMATOLOGICA ATOPICALM 400ML" data-pieza="12" data-cajas="60">10558 - EMULSION ATOPICALM</option>
-      <option value="10559" data-desc="CREMA CORPORAL DERMATOLOGICA ATOPI CALM 300G" data-pieza="12" data-cajas="80">10559 - CREMA ATOPI CALM</option>
       <option value="10560" data-desc="EMULSION DIA BE CALM 400ML" data-pieza="12" data-cajas="60">10560 - EMULSION BE CALM</option>
-      <option value="10561" data-desc="CREMA CORPORAL DERMATOLOGICA DB CALM 300G" data-pieza="12" data-cajas="80">10561 - CREMA DB CALM</option>
       <option value="10562" data-desc="EMULSION DERMAN PS CALM" data-pieza="12" data-cajas="60">10562 - EMULSION DERMAN</option>
       <option value="10563" data-desc="CREMA DERMAN PS CALM" data-pieza="12" data-cajas="80">10563 - CREMA DERMAN</option>
+      <option value="10561" data-desc="CREMA CORPORAL DERMATOLOGICA DB CALM 300G" data-pieza="12" data-cajas="80">10561 - CREMA DB CALM</option>
+      <option value="10559" data-desc="CREMA CORPORAL DERMATOLOGICA ATOPI CALM 300G" data-pieza="12" data-cajas="80">10559 - CREMA ATOPI CALM</option>
+      <option value="10518" data-desc="ROCAINOL CREMA ACCION TERMICA 150G" data-pieza="12" data-cajas="1">10518 - ROCAINOL TERMICA</option>
     </select>
 
     <!-- Lote -->
@@ -122,31 +113,31 @@ input.mono{ font-family:ui-monospace,Consolas,monospace }
         </div>
         <div>
           <div class="muted">Prefijo aplicado automáticamente:</div>
-          <input id="previewAuto" class="mono" readonly>
+          <input id="previewAuto" class="mono" readonly="">
         </div>
       </div>
     </div>
 
     <div class="row">
-      <div><label>Código de Producto</label><input id="codigo" readonly class="mono"></div>
-      <div><label>Cajas por Tarima</label><input id="cajas" readonly class="mono"></div>
-      <div><label>Pz por Caja</label><input id="pieza" readonly class="mono"></div>
-      <div><label>Pz por Tarima</label><input id="pz" readonly class="mono"></div>
+      <div><label>Código de Producto</label><input id="codigo" readonly="" class="mono"></div>
+      <div><label>Cajas por Tarima</label><input id="cajas" readonly="" class="mono"></div>
+      <div><label>Pz por Caja</label><input id="pieza" readonly="" class="mono"></div>
+      <div><label>Pz por Tarima</label><input id="pz" readonly="" class="mono"></div>
     </div>
 
     <label>Total de Piezas</label>
-    <input id="totalPiezas" readonly class="mono">
+    <input id="totalPiezas" readonly="" class="mono">
 
-    <label>Descripción</label><input id="descripcion" readonly>
+    <label>Descripción</label><input id="descripcion" readonly="">
 
     <label>Lote</label>
-    <input id="lote" class="mono" placeholder="Ej. WGH01234">
+    <input id="lote" class="mono">
 
     <label>Caducidad</label>
     <div class="row">
-      <select id="cad_dia"></select>
-      <select id="cad_mes"></select>
-      <select id="cad_anio"></select>
+      <select id="cad_dia"><option value="">Día</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option><option value="25">25</option><option value="26">26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option><option value="30">30</option><option value="31">31</option></select>
+      <select id="cad_mes"><option value="">Mes</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option></select>
+      <select id="cad_anio"><option value="">Año</option><option value="2025">2025</option><option value="2026">2026</option><option value="2027">2027</option><option value="2028">2028</option><option value="2029">2029</option><option value="2030">2030</option><option value="2031">2031</option><option value="2032">2032</option><option value="2033">2033</option><option value="2034">2034</option><option value="2035">2035</option><option value="2036">2036</option><option value="2037">2037</option><option value="2038">2038</option><option value="2039">2039</option><option value="2040">2040</option></select>
     </div>
 
     <div class="inline">
@@ -157,10 +148,10 @@ input.mono{ font-family:ui-monospace,Consolas,monospace }
 </div>
 
 <!-- ETIQUETA -->
-<div class="etiqueta" id="etiqueta">
+<div class="etiqueta" id="etiqueta" style="display: block;">
   <div class="titulo">ALDISAN-KSK</div>
   <div class="grid">
-    <div class="campo"><b>Picker:</b> <span id="e_picker"></span></div>
+    <div class="campo"><b>Picker:</b> <span id="e_picker">Victor</span></div>
     <div class="campo"><b>Producto:</b> <span id="e_producto"></span></div>
     <div class="campo"><b>Código:</b> <span id="e_codigo"></span></div>
     <div class="campo"><b>Descripción:</b> <span id="e_descripcion"></span></div>
@@ -169,22 +160,23 @@ input.mono{ font-family:ui-monospace,Consolas,monospace }
     <div class="campo"><b>Pz por Tarima:</b> <span id="e_pz"></span></div>
     <div class="campo"><b>Total Piezas:</b> <span id="e_totalPiezas"></span></div>
     <div class="campo"><b>Lote:</b> <span id="e_lote"></span></div>
-    <div class="campo"><b>Caducidad:</b> <span id="e_caducidad"></span></div>
-    <div class="campo"><b>Fecha Maquila:</b> <span id="e_fecha"></span></div>
+    <div class="campo"><b>Caducidad:</b> <span id="e_caducidad">2025-08-28</span></div>
+    <div class="campo"><b>Fecha Maquila:</b> <span id="e_fecha">28/08/2025</span></div>
   </div>
-  <div class="qrbox"><div id="qrcode"></div></div>
+  <div class="qrbox"><div id="qrcode" title="Victor	20250828-0003				2025-08-28			
+"><canvas width="200" height="200" style="display: none;"></canvas><img style="display: block;" src="data:image/png;base64,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"></div></div>
 </div>
 
 <!-- Librerías -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+<script src="./ALDISAN-KSK – Generador de Etiquetas_files/qrcode.min.js.descarga"></script>
+<script src="./ALDISAN-KSK – Generador de Etiquetas_files/html2pdf.bundle.min.js.descarga"></script>
 
 <script>
 /* ========= Helpers ========= */
 const wghProducts = new Set(['10558','10559','10560','10561','10562','10563']);
 const digitsOnly = s => (s||'').replace(/\D+/g,'');
 
-/* UID (folio único por día) */
+/* UID */
 let currentUID = '';
 function todayKey(){ const d=new Date(); return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`; }
 function nextUID(){ const k='ksk_folio_'+todayKey(); const n=(+localStorage.getItem(k)||0)+1; localStorage.setItem(k,n); return `${todayKey()}-${String(n).padStart(4,'0')}`; }
@@ -192,29 +184,7 @@ function ensureUID(){ if(!currentUID) currentUID = nextUID(); }
 
 const $ = id => document.getElementById(id);
 
-/* ===== Persistencia (no perder datos al actualizar) ===== */
-const SAVE_KEYS = ['picker','producto','codigo','cajas','pieza','pz','totalPiezas','descripcion','lote','cad_dia','cad_mes','cad_anio','modeAuto','last4'];
-function autoSave(){
-  const data = {};
-  for(const k of SAVE_KEYS){
-    const el = $(k);
-    if (!el) continue;
-    data[k] = (el.type==='checkbox' || el.type==='radio') ? el.checked : el.value;
-  }
-  localStorage.setItem('ksk_form', JSON.stringify(data));
-}
-function autoLoad(){
-  try{
-    const data = JSON.parse(localStorage.getItem('ksk_form')||'{}');
-    for(const k of SAVE_KEYS){
-      const el = $(k); if(!el || data[k]==null) continue;
-      if (el.type==='checkbox' || el.type==='radio') el.checked = !!data[k];
-      else el.value = data[k];
-    }
-  }catch(_){}
-}
-
-/* Caducidad (selects) */
+/* Caducidad */
 function poblarSelects(){
   const dSel=$('cad_dia'), mSel=$('cad_mes'), ySel=$('cad_anio');
   dSel.innerHTML='<option value="">Día</option>'; for(let d=1; d<=31; d++) dSel.innerHTML+=`<option value="${d}">${d}</option>`;
@@ -223,7 +193,7 @@ function poblarSelects(){
   const now=new Date(); dSel.value=String(now.getDate()); mSel.value=String(now.getMonth()+1); ySel.value=String(now.getFullYear());
 }
 
-/* Autorrelleno de producto */
+/* Autorrelleno producto */
 function rellenarProducto(){
   const sel=$('producto'); const opt=sel.options[sel.selectedIndex]; if(!opt || !opt.value) return;
   const piezasNum=parseInt(opt.dataset.pieza||'0',10);
@@ -239,7 +209,6 @@ function rellenarProducto(){
 
   updateLoteControls();
   generarEtiqueta();
-  autoSave();
 }
 
 /* Lote auto/manual */
@@ -256,55 +225,83 @@ function updateLoteControls(){
   }else{
     wrap.style.display='none';
     $('last4')&&($('last4').value=''); $('previewAuto')&&($('previewAuto').value='');
-    if(mA) mA.checked=false; if(mM) mM.checked=true; loteIn.readOnly=false;
+    mA.checked=false; mM.checked=true; loteIn.readOnly=false;
   }
-  autoSave();
 }
 function applyAutoLote(){
   const l4=$('last4'); if(!l4) return;
   const four=digitsOnly(l4.value).slice(0,4); l4.value=four;
   const lote='WGH0'+four.padStart(4,'0');
   $('previewAuto')&&($('previewAuto').value=lote);
-  if($('modeAuto') && $('modeAuto').checked) $('lote').value=lote;
+  if($('modeAuto').checked) $('lote').value=lote;
   generarEtiqueta();
-  autoSave();
 }
 
-/* ===== QR robusto (UTF-8 + imagen PNG para impresión móvil) ===== */
-function toUTF8(str){ return unescape(encodeURIComponent(str || '')); }
-function makeQR(text){
-  const node = $('qrcode');
-  node.innerHTML = '';
-
-  if (typeof QRCode === 'undefined') {
-    node.textContent = 'QR no disponible';
-    return;
-  }
-
-  const qr = new QRCode(node, {
-    text: toUTF8(text),
-    width: 220,
-    height: 220,
-    correctLevel: QRCode.CorrectLevel.M
-  });
-
-  // Convertir a PNG para asegurar impresión en Android/iOS
-  requestAnimationFrame(() => {
-    const canvas = node.querySelector('canvas');
-    if (canvas) {
-      try{
-        const img = new Image();
-        img.src = canvas.toDataURL('image/png');
-        img.alt = 'QR';
-        img.style.width = '220px';
-        img.style.height = '220px';
-        node.innerHTML = '';
-        node.appendChild(img);
-      }catch(_){}
-    }
-  });
-}
-
-/* Payload para QR */
+/* Payload QR */
 function buildPayload(){
-  ensure
+  ensureUID();
+  const SEP='\t', END='\r';
+  const d=$('cad_dia').value, m=$('cad_mes').value, y=$('cad_anio').value;
+  const cad=(d&&m&&y)?`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`:'';
+  return [
+    $('picker').value, currentUID, $('codigo').value, $('descripcion').value,
+    $('lote').value, cad, $('cajas').value, $('pieza').value, $('pz').value
+  ].join(SEP)+END;
+}
+
+/* Render etiqueta */
+let qr;
+function makeQR(text){ const n=$('qrcode'); n.innerHTML=''; qr=new QRCode(n,{text,width:200,height:200,correctLevel:QRCode.CorrectLevel.M}); }
+function generarEtiqueta(){
+  const d=$('cad_dia').value, m=$('cad_mes').value, y=$('cad_anio').value;
+  $('e_caducidad').textContent=(d&&m&&y)?`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`:'';
+
+  const pcs=parseInt($('pieza').value||'0',10), cjs=parseInt($('cajas').value||'0',10), pzt=cjs*pcs;
+  $('pz').value=pzt||''; $('totalPiezas').value=pzt||'';
+
+  const sel=$('producto'); const prodTxt= sel.value ? sel.options[sel.selectedIndex].text : '';
+  $('e_picker').textContent=$('picker').value;
+  $('e_producto').textContent=prodTxt;
+  $('e_codigo').textContent=$('codigo').value;
+  $('e_descripcion').textContent=$('descripcion').value;
+  $('e_cajas').textContent=$('cajas').value;
+  $('e_pieza').textContent=$('pieza').value;
+  $('e_pz').textContent=$('pz').value;
+  $('e_totalPiezas').textContent=$('totalPiezas').value;
+  $('e_lote').textContent=$('lote').value;
+  $('e_fecha').textContent=new Date().toLocaleDateString('es-MX',{year:'numeric',month:'2-digit',day:'2-digit'});
+
+  $('etiqueta').style.display='block';
+  makeQR(buildPayload());
+}
+
+/* Imprimir / PDF */
+function printWithUID(e){
+  e.preventDefault(); ensureUID(); generarEtiqueta();
+  setTimeout(()=>window.print(),10);
+}
+function exportarPDF(e){
+  e.preventDefault(); ensureUID(); generarEtiqueta();
+  if(typeof html2pdf==='undefined'){ alert('No se pudo cargar html2pdf.'); return; }
+  const nombre=`${$('codigo').value||'PROD'}_${$('e_fecha').textContent.replaceAll('/','-')}.pdf`;
+  html2pdf().set({
+    margin:0, filename:nombre,
+    image:{type:'jpeg',quality:1}, html2canvas:{scale:2},
+    jsPDF:{unit:'cm',format:'letter',orientation:'portrait'}
+  }).from($('etiqueta')).save();
+}
+
+/* Listeners */
+document.addEventListener('DOMContentLoaded',()=>{
+  poblarSelects();
+  $('producto').addEventListener('change', rellenarProducto);
+  $('modeAuto').addEventListener('change', updateLoteControls);
+  $('modeManual').addEventListener('change', updateLoteControls);
+  $('last4') && $('last4').addEventListener('input', applyAutoLote);
+  $('btnImprimir').addEventListener('click', printWithUID);
+  $('btnPDF').addEventListener('click', exportarPDF);
+  generarEtiqueta();
+});
+</script>
+
+</body></html>
