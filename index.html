@@ -6,69 +6,75 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <style>
 :root{
-  --carta-w:21.59cm; --carta-h:27.94cm;
-
- /* ===== AJUSTES FINOS DE IMPRESIÓN =====
-     Más arriba  -> hacer --print-top más NEGATIVO.
-     Si sale 2 hojas -> bajar un poco --print-h. */
-  --print-w:18.8cm;      /* ancho seguro para móvil */
-  --print-h:21.80cm;     /* alto recortado (garantiza 1 hoja) */
-  --print-top:-2.30cm;   /* SUBIDO AÚN MÁS */
-  --print-bottom:0;      /* sin margen abajo */
+  /* Ajustes finos solo para la IMPRESIÓN (1 hoja y más arriba/abajo).
+     Si quieres subir más: haz --print-top más NEGATIVO.
+     Si vuelve a sacar 2 hojas: baja un poco --print-h. */
+  --print-w: 19.0cm;
+  --print-h: 22.2cm;
+  --print-top: -2.3cm;
+  --print-bottom: 0;
 }
 
+/* ---------- UI ---------- */
 *{ box-sizing:border-box }
 html,body{ margin:0; padding:0 }
 body{
-  font-family:'Segoe UI',Tahoma,Verdana,sans-serif;
-  background:radial-gradient(circle at top,#0f2027,#203a43,#2c5364);
+  font-family:'Segoe UI', Tahoma, Verdana, sans-serif;
+  background: radial-gradient(circle at top,#0f2027,#203a43,#2c5364);
   color:#e0e0e0; min-height:100vh; display:grid; place-items:center;
 }
 .wrap{ width:min(100%,900px); padding:20px }
-h1{ text-align:center; color:#00e5ff; text-shadow:0 0 10px #00e5ff; margin:0 0 20px }
+h1{
+  margin:0 0 20px; text-align:center; color:#00e5ff;
+  text-shadow:0 0 10px #00e5ff; letter-spacing:.5px;
+}
 .formulario{ background:rgba(20,20,30,.9); padding:20px; border-radius:16px; box-shadow:0 0 20px #00e5ff55 }
 label{ display:block; margin:12px 0 6px; font-weight:700; color:#90caf9 }
-select,input{ width:100%; padding:10px; border-radius:10px; border:none; background:#1c1f2b; color:#fff; font-size:16px }
+select,input{
+  width:100%; padding:12px; border-radius:10px; border:none;
+  background:#1c1f2b; color:#fff; font-size:16px
+}
 input.mono{ font-family:ui-monospace,Consolas,monospace }
-.btn{ display:inline-block; margin-top:14px; background:linear-gradient(90deg,#00e5ff,#2979ff); color:#000; font-weight:800; padding:12px 20px; border-radius:12px; border:none; cursor:pointer }
+.btn{
+  display:inline-block; margin-top:14px;
+  background:linear-gradient(90deg,#00e5ff,#2979ff); color:#000;
+  font-weight:800; padding:12px 20px; border-radius:12px; border:none; cursor:pointer
+}
 .inline{ display:flex; gap:12px; flex-wrap:wrap; align-items:center }
 .muted{ color:#9bbbd4; font-size:12px }
 .row{ display:grid; grid-template-columns:1fr 1fr; gap:12px }
 @media (max-width:720px){ .row{ grid-template-columns:1fr } }
 
-/* ===== ETIQUETA (preview en pantalla) ===== */
-.etiqueta{
-  width:var(--carta-w); height:var(--carta-h);
+/* ---------- Etiqueta (preview) ---------- */
+#etiqueta{
+  width:21.59cm; height:27.94cm; /* carta */
   background:#fff; color:#000; border:1px solid #000; padding:28px;
   display:none; position:relative; overflow:hidden;
 }
-.etiqueta .titulo{
-  text-align:center; font-size:40px; font-weight:900; color:#003366; margin-bottom:12px; letter-spacing:.5px;
+#etiqueta .titulo{
+  text-align:center; font-size:42px; font-weight:900; color:#003366; margin-bottom:14px
 }
-.grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px 20px }
-.campo{ font-size:20px; line-height:1.3 }
-.campo b{ display:inline-block; min-width:210px }
+.grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px 24px }
+.campo{ font-size:20px; line-height:1.35 }
+.campo b{ display:inline-block; min-width:220px }
 
-/* Solo QR, centrado abajo */
+/* Solo QR, centrado al fondo */
 .qrbox{
   position:absolute; left:50%; bottom:14px; transform:translateX(-50%);
-  width:220px; height:220px; border:1px solid #000; background:#fff;
+  width:230px; height:230px; border:1px solid #000; background:#fff;
   display:flex; align-items:center; justify-content:center;
 }
 
-/* ===== IMPRESIÓN ===== */
+/* ---------- Impresión ---------- */
 @page{ size: letter; margin:0 }
 @media print{
   .wrap{ display:none !important }
   body{ background:#fff; -webkit-print-color-adjust:exact; print-color-adjust:exact }
   #etiqueta{
     display:block !important;
-    width:var(--print-w);
-    height:var(--print-h);
+    width:var(--print-w); height:var(--print-h);
     margin:var(--print-top) auto var(--print-bottom);
-    border:1px solid #000;
-    padding:22px;
-    overflow:hidden;
+    border:1px solid #000; padding:22px; overflow:hidden;
     page-break-before:avoid; page-break-after:avoid; page-break-inside:avoid;
     break-before:avoid-page; break-after:avoid-page; break-inside:avoid-page;
   }
@@ -98,16 +104,16 @@ input.mono{ font-family:ui-monospace,Consolas,monospace }
       <option value="10555" data-desc="SERUM CORPORAL ACLARANTE 320 ML." data-pieza="48" data-cajas="120">10555 - SERUM ACLARANTE</option>
       <option value="10556" data-desc="SERUM CORPORAL REAFIRMANTE 320 ML." data-pieza="48" data-cajas="120">10556 - SERUM REAFIRMANTE</option>
       <option value="10557" data-desc="VITACILINA SUEROX CORPORAL DE 300ML" data-pieza="48" data-cajas="120">10557 - VITACILINA SUEROX</option>
-      <option value="10558" data-desc="EMULSION CORPORAL DERMATOLOGICA ATOPICALM 400ML" data-pieza="12" data-cajas="60">10558 - EMULSION ATOPICALM</option>
-      <option value="10560" data-desc="EMULSION DIA BE CALM 400ML" data-pieza="12" data-cajas="60">10560 - EMULSION BE CALM</option>
-      <option value="10562" data-desc="EMULSION DERMAN PS CALM" data-pieza="12" data-cajas="60">10562 - EMULSION DERMAN</option>
+      <option value="10558" data-desc="EMULSION CORPORAL DERMATOLÓGICA ATOPICALM 400ML" data-pieza="12" data-cajas="60">10558 - EMULSIÓN ATOPICALM</option>
+      <option value="10560" data-desc="EMULSION DÍA BE CALM 400ML" data-pieza="12" data-cajas="60">10560 - EMULSIÓN BE CALM</option>
+      <option value="10562" data-desc="EMULSION DERMAN PS CALM" data-pieza="12" data-cajas="60">10562 - EMULSIÓN DERMAN</option>
       <option value="10563" data-desc="CREMA DERMAN PS CALM" data-pieza="12" data-cajas="80">10563 - CREMA DERMAN</option>
-      <option value="10561" data-desc="CREMA CORPORAL DERMATOLOGICA DB CALM 300G" data-pieza="12" data-cajas="80">10561 - CREMA DB CALM</option>
-      <option value="10559" data-desc="CREMA CORPORAL DERMATOLOGICA ATOPI CALM 300G" data-pieza="12" data-cajas="80">10559 - CREMA ATOPI CALM</option>
-      <option value="10518" data-desc="ROCAINOL CREMA ACCION TERMICA 150G" data-pieza="12" data-cajas="1">10518 - ROCAINOL TERMICA</option>
+      <option value="10561" data-desc="CREMA CORPORAL DERMATOLÓGICA DB CALM 300G" data-pieza="12" data-cajas="80">10561 - CREMA DB CALM</option>
+      <option value="10559" data-desc="CREMA CORPORAL DERMATOLÓGICA ATOPI CALM 300G" data-pieza="12" data-cajas="80">10559 - CREMA ATOPI CALM</option>
+      <option value="10518" data-desc="ROCAINOL CREMA ACCIÓN TÉRMICA 150G" data-pieza="12" data-cajas="1">10518 - ROCAINOL TÉRMICA</option>
     </select>
 
-    <!-- Lote -->
+    <!-- Lote (auto/manual) -->
     <div id="loteModeWrap" style="display:none;margin-top:6px">
       <label>Modo de Lote</label>
       <div class="inline">
@@ -179,43 +185,48 @@ input.mono{ font-family:ui-monospace,Consolas,monospace }
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
 
 <script>
-/* ========= Helpers ========= */
+/* ===== Config mínima ===== */
 const wghProducts = new Set(['10558','10559','10560','10561','10562','10563']);
 const digitsOnly = s => (s||'').replace(/\D+/g,'');
 
-/* UID (folio único por día) */
+/* Persistencia */
+const FORM_KEY = 'ALDISAN_KSK_FORM_V1';
+
+/* UID único por día (estable al recargar) */
 let currentUID = '';
 function todayKey(){ const d=new Date(); return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`; }
-function nextUID(){ const k='ksk_folio_'+todayKey(); const n=(+localStorage.getItem(k)||0)+1; localStorage.setItem(k,n); return `${todayKey()}-${String(n).padStart(4,'0')}`; }
+function nextUID(){
+  const k='ALDISAN_UID_'+todayKey();
+  const n=(+localStorage.getItem(k)||0)+1;
+  localStorage.setItem(k,n);
+  return `${todayKey()}-${String(n).padStart(4,'0')}`;
+}
 function ensureUID(){ if(!currentUID) currentUID = nextUID(); }
 
 const $ = id => document.getElementById(id);
 
-/* Caducidad (selects) */
+/* Caducidad selects */
 function poblarSelects(){
   const dSel=$('cad_dia'), mSel=$('cad_mes'), ySel=$('cad_anio');
   dSel.innerHTML='<option value="">Día</option>'; for(let d=1; d<=31; d++) dSel.innerHTML+=`<option value="${d}">${d}</option>`;
   mSel.innerHTML='<option value="">Mes</option>'; for(let m=1; m<=12; m++) mSel.innerHTML+=`<option value="${m}">${m}</option>`;
-  const y0=new Date().getFullYear(); ySel.innerHTML='<option value="">Año</option>'; for(let y=y0; y<=y0+15; y++) ySel.innerHTML+=`<option value="${y}">${y}</option>`;
-  const now=new Date(); dSel.value=String(now.getDate()); mSel.value=String(now.getMonth()+1); ySel.value=String(now.getFullYear());
+  const y0=new Date().getFullYear();
+  ySel.innerHTML='<option value="">Año</option>'; for(let y=y0; y<=y0+15; y++) ySel.innerHTML+=`<option value="${y}">${y}</option>`;
 }
 
-/* Autorrelleno de producto */
+/* Autorrelleno por producto */
 function rellenarProducto(){
   const sel=$('producto'); const opt=sel.options[sel.selectedIndex]; if(!opt || !opt.value) return;
-  const piezasNum=parseInt(opt.dataset.pieza||'0',10);
-  const cajasNum=parseInt(opt.dataset.cajas||'0',10);
-  const pzTar=piezasNum*cajasNum;
-
-  $('codigo').value=opt.value;
-  $('descripcion').value=opt.dataset.desc||'';
-  $('cajas').value=cajasNum?String(cajasNum):'';
-  $('pieza').value=piezasNum?String(piezasNum):'';
-  $('pz').value=pzTar?String(pzTar):'';
-  $('totalPiezas').value=pzTar?String(pzTar):'';
-
+  const piezas=+opt.dataset.pieza||0, cajas=+opt.dataset.cajas||0, pzt=cajas*piezas;
+  $('codigo').value = opt.value;
+  $('descripcion').value = opt.dataset.desc||'';
+  $('cajas').value = cajas||'';
+  $('pieza').value = piezas||'';
+  $('pz').value = pzt||'';
+  $('totalPiezas').value = pzt||'';
   updateLoteControls();
   generarEtiqueta();
+  saveState();
 }
 
 /* Lote auto/manual */
@@ -224,27 +235,29 @@ function updateLoteControls(){
   const mA=$('modeAuto'), mM=$('modeManual');
   if(wghProducts.has(val)){
     wrap.style.display='block';
-    if(!mA.checked && !mM.checked) mA.checked=true;
+    if(!mA.checked&&!mM.checked) mA.checked=true;
     const isAuto=mA.checked;
     group.style.display=isAuto?'grid':'none';
     loteIn.readOnly=isAuto;
     if(isAuto) applyAutoLote();
   }else{
     wrap.style.display='none';
-    $('last4')&&($('last4').value=''); $('previewAuto')&&($('previewAuto').value='');
+    if($('last4')) $('last4').value='';
+    if($('previewAuto')) $('previewAuto').value='';
     mA.checked=false; mM.checked=true; loteIn.readOnly=false;
   }
+  saveState();
 }
 function applyAutoLote(){
   const l4=$('last4'); if(!l4) return;
   const four=digitsOnly(l4.value).slice(0,4); l4.value=four;
   const lote='WGH0'+four.padStart(4,'0');
-  $('previewAuto')&&($('previewAuto').value=lote);
+  if($('previewAuto')) $('previewAuto').value=lote;
   if($('modeAuto').checked) $('lote').value=lote;
-  generarEtiqueta();
+  generarEtiqueta(); saveState();
 }
 
-/* Payload para QR */
+/* Payload para QR (tabuladores + \r) */
 function buildPayload(){
   ensureUID();
   const SEP='\t', END='\r';
@@ -256,17 +269,14 @@ function buildPayload(){
   ].join(SEP)+END;
 }
 
-/* Pintar etiqueta y QR */
+/* Pintar etiqueta + QR */
 let qr;
-function makeQR(text){
-  const node=$('qrcode'); node.innerHTML='';
-  qr=new QRCode(node,{text,width:220,height:220,correctLevel:QRCode.CorrectLevel.M});
-}
+function makeQR(text){ const node=$('qrcode'); node.innerHTML=''; qr=new QRCode(node,{text,width:230,height:230,correctLevel:QRCode.CorrectLevel.M}); }
 function generarEtiqueta(){
   const d=$('cad_dia').value, m=$('cad_mes').value, y=$('cad_anio').value;
-  $('e_caducidad').textContent=(d&&m&&y)?`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`:'';
+  $('e_caducidad').textContent = (d&&m&&y)?`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`:'';
 
-  const pcs=parseInt($('pieza').value||'0',10), cjs=parseInt($('cajas').value||'0',10), pzt=cjs*pcs;
+  const pcs=+($('pieza').value||0), cjs=+($('cajas').value||0); const pzt=cjs*pcs;
   $('pz').value=pzt||''; $('totalPiezas').value=pzt||'';
 
   const sel=$('producto'); const prodTxt= sel.value ? sel.options[sel.selectedIndex].text : '';
@@ -285,13 +295,56 @@ function generarEtiqueta(){
   makeQR(buildPayload());
 }
 
+/* Persistencia */
+function saveState(){
+  const st={
+    picker:$('picker').value,
+    producto:$('producto').value,
+    lote:$('lote').value,
+    modeAuto:$('modeAuto')?.checked||false,
+    last4:$('last4')?.value||'',
+    cad:{d:$('cad_dia').value,m:$('cad_mes').value,y:$('cad_anio').value},
+    uid: currentUID
+  };
+  try{ localStorage.setItem(FORM_KEY, JSON.stringify(st)); }catch(_){}
+}
+function restoreState(){
+  try{
+    const raw=localStorage.getItem(FORM_KEY); if(!raw) return;
+    const st=JSON.parse(raw);
+
+    if(st.picker) $('picker').value=st.picker;
+
+    if(st.producto){
+      const sel=$('producto');
+      if([...sel.options].some(o=>o.value===st.producto)){
+        sel.value=st.producto; rellenarProducto();
+      }
+    }
+
+    $('lote').value = st.lote || '';
+
+    if(st.modeAuto!==undefined){
+      $('modeAuto').checked=!!st.modeAuto; $('modeManual').checked=!st.modeAuto;
+      updateLoteControls();
+    }
+    if(st.last4 && $('last4')) $('last4').value=st.last4;
+
+    if(st.cad){ $('cad_dia').value=st.cad.d||''; $('cad_mes').value=st.cad.m||''; $('cad_anio').value=st.cad.y||''; }
+
+    currentUID = (st.uid && String(st.uid).startsWith(todayKey())) ? st.uid : '';
+
+    generarEtiqueta();
+  }catch(_){}
+}
+
 /* Imprimir / PDF */
-function printWithUID(e){
-  e.preventDefault(); ensureUID(); generarEtiqueta();
+function onPrint(e){
+  e.preventDefault(); ensureUID(); generarEtiqueta(); saveState();
   setTimeout(()=>window.print(),10);
 }
-function exportarPDF(e){
-  e.preventDefault(); ensureUID(); generarEtiqueta();
+function onPDF(e){
+  e.preventDefault(); ensureUID(); generarEtiqueta(); saveState();
   if(typeof html2pdf==='undefined'){ alert('No se pudo cargar html2pdf.'); return; }
   const nombre=`${$('codigo').value||'PROD'}_${$('e_fecha').textContent.replaceAll('/','-')}.pdf`;
   html2pdf().set({
@@ -304,12 +357,22 @@ function exportarPDF(e){
 /* Listeners */
 document.addEventListener('DOMContentLoaded',()=>{
   poblarSelects();
+  restoreState();
+
   $('producto').addEventListener('change', rellenarProducto);
   $('modeAuto').addEventListener('change', updateLoteControls);
   $('modeManual').addEventListener('change', updateLoteControls);
   $('last4') && $('last4').addEventListener('input', applyAutoLote);
-  $('btnImprimir').addEventListener('click', printWithUID);
-  $('btnPDF').addEventListener('click', exportarPDF);
+
+  ['picker','lote','cad_dia','cad_mes','cad_anio'].forEach(id=>{
+    const n=$(id); if(!n) return;
+    n.addEventListener('input', ()=>{ saveState(); generarEtiqueta(); });
+    n.addEventListener('change', ()=>{ saveState(); generarEtiqueta(); });
+  });
+
+  $('btnImprimir').addEventListener('click', onPrint);
+  $('btnPDF').addEventListener('click', onPDF);
+
   generarEtiqueta();
 });
 </script>
