@@ -4,71 +4,77 @@
 <meta charset="UTF-8" />
 <title>ALDISAN-KSK – Generador de Etiquetas</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="light only" />
 <style>
 :root{
   --carta-w:21.59cm; --carta-h:27.94cm;
-  /* Desktop por defecto */
-  --print-w:18.8cm;
-  --print-h:21.8cm;
-  --print-top:-2.3cm;
+
+  /* ===== AJUSTES DE IMPRESIÓN (móvil) =====
+     Más arriba  -> --print-top más NEGATIVO.
+     Si sale 2 hojas -> bajar un poco --print-h. */
+  --print-w:18.90cm;     /* ancho seguro */
+  --print-h:22.60cm;     /* alto recortado para 1 hoja */
+  --print-top:-1.80cm;   /* subir etiqueta */
   --print-bottom:0;
 }
-*{box-sizing:border-box}
-html,body{margin:0;padding:0}
+
+*{ box-sizing:border-box }
+html,body{ margin:0; padding:0 }
 body{
   font-family:'Segoe UI',Tahoma,Verdana,sans-serif;
   background:radial-gradient(circle at top,#0f2027,#203a43,#2c5364);
   color:#e0e0e0; min-height:100vh; display:grid; place-items:center;
 }
-.wrap{width:min(100%,900px);padding:20px}
-h1{text-align:center;color:#00e5ff;text-shadow:0 0 10px #00e5ff;margin:0 0 20px}
-.formulario{background:rgba(20,20,30,.9);padding:20px;border-radius:16px;box-shadow:0 0 20px #00e5ff55}
-label{display:block;margin:12px 0 6px;font-weight:700;color:#90caf9}
-select,input{width:100%;padding:10px;border-radius:10px;border:none;background:#1c1f2b;color:#fff;font-size:16px}
-input.mono{font-family:ui-monospace,Consolas,monospace}
-.btn{display:inline-block;margin-top:14px;background:linear-gradient(90deg,#00e5ff,#2979ff);color:#000;font-weight:800;padding:12px 20px;border-radius:12px;border:none;cursor:pointer}
-.inline{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
-.muted{color:#9bbbd4;font-size:12px}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-@media (max-width:720px){.row{grid-template-columns:1fr}}
+.wrap{ width:min(100%,900px); padding:20px }
+h1{ text-align:center; color:#00e5ff; text-shadow:0 0 10px #00e5ff; margin:0 0 20px }
+.formulario{ background:rgba(20,20,30,.9); padding:20px; border-radius:16px; box-shadow:0 0 20px #00e5ff55 }
+label{ display:block; margin:12px 0 6px; font-weight:700; color:#90caf9 }
+select,input{ width:100%; padding:10px; border-radius:10px; border:none; background:#1c1f2b; color:#fff; font-size:16px }
+input.mono{ font-family:ui-monospace,Consolas,monospace }
+.btn{ display:inline-block; margin-top:14px; background:linear-gradient(90deg,#00e5ff,#2979ff); color:#000; font-weight:800; padding:12px 20px; border-radius:12px; border:none; cursor:pointer }
+.inline{ display:flex; gap:12px; flex-wrap:wrap; align-items:center }
+.muted{ color:#9bbbd4; font-size:12px }
+.row{ display:grid; grid-template-columns:1fr 1fr; gap:12px }
+@media (max-width:720px){ .row{ grid-template-columns:1fr } }
 
-/* Vista previa etiqueta */
+/* ===== ETIQUETA (preview) ===== */
 .etiqueta{
-  width:var(--carta-w);height:var(--carta-h);
-  background:#fff;color:#000;border:1px solid #000;padding:28px;
-  display:none;position:relative;overflow:hidden;
+  width:var(--carta-w); height:var(--carta-h);
+  background:#fff; color:#000; border:1px solid #000; padding:28px;
+  display:none; position:relative; overflow:hidden;
 }
-.etiqueta .titulo{ text-align:center;font-size:40px;font-weight:900;color:#003366;margin-bottom:12px;letter-spacing:.5px }
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 20px}
-.campo{font-size:20px;line-height:1.3}
-.campo b{display:inline-block;min-width:210px}
-.qrbox{
-  position:absolute;left:50%;bottom:14px;transform:translateX(-50%);
-  width:220px;height:220px;border:1px solid #000;background:#fff;
-  display:flex;align-items:center;justify-content:center;
+.etiqueta .titulo{
+  text-align:center; font-size:40px; font-weight:900; color:#003366; margin-bottom:12px; letter-spacing:.5px;
 }
-#qrcode{width:210px;height:210px}
+.grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px 20px }
+.campo{ font-size:20px; line-height:1.3 }
+.campo b{ display:inline-block; min-width:210px }
 
-/* Impresión */
-@page{size:letter;margin:0}
-@media print{
-  .wrap{display:none !important}
-  body{background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  #etiqueta{
-    display:block !important;
-    width:var(--print-w);height:var(--print-h);
-    margin:var(--print-top) auto var(--print-bottom);
-    border:1px solid #000;padding:22px;overflow:hidden;
-    page-break-inside:avoid;break-inside:avoid-page;
-  }
+/* Solo QR, centrado abajo */
+.qrbox{
+  position:absolute; left:50%; bottom:14px; transform:translateX(-50%);
+  width:220px; height:220px; border:1px solid #000; background:#fff;
+  display:flex; align-items:center; justify-content:center;
 }
-/* Override fino para móviles */
-@media (max-width:820px){
-  :root{
-    --print-w:18.5cm;
-    --print-h:21.2cm;
-    --print-top:-3.4cm;   /* más arriba en Android */
-    --print-bottom:0;
+
+/* ===== IMPRESIÓN ===== */
+@page{ size: letter; margin:0 }
+@media print{
+  /* Mostrar SOLO la etiqueta para evitar 2a hoja en móvil */
+  body *{ visibility:hidden !important }
+  #etiqueta, #etiqueta *{ visibility:visible !important }
+
+  #etiqueta{
+    position:absolute; left:0; right:0;
+    display:block !important;
+    width:var(--print-w);
+    height:var(--print-h);
+    margin:var(--print-top) auto var(--print-bottom);
+    border:1px solid #000;
+    padding:22px;
+    overflow:hidden;
+    page-break-before:avoid; page-break-after:avoid; page-break-inside:avoid;
+    break-before:avoid-page; break-after:avoid-page; break-inside:avoid-page;
   }
 }
 </style>
@@ -79,13 +85,18 @@ input.mono{font-family:ui-monospace,Consolas,monospace}
 
   <div class="formulario">
     <label>Picker (usuario)</label>
-    <select id="picker" onchange="generarEtiqueta()" oninput="generarEtiqueta()">
-      <option>VÍCTOR</option><option>EDSON</option><option>IRVING</option>
-      <option>ENRIQUE</option><option>CARLOS</option><option>JESÚS</option><option>MANUEL</option>
+    <select id="picker">
+      <option>VÍCTOR</option>
+      <option>EDSON</option>
+      <option>IRVING</option>
+      <option>ENRIQUE</option>
+      <option>CARLOS</option>
+      <option>JESÚS</option>
+      <option>MANUEL</option>
     </select>
 
     <label>Producto</label>
-    <select id="producto" onchange="rellenarProducto()" oninput="rellenarProducto()">
+    <select id="producto">
       <option value="">-- Selecciona un producto --</option>
       <option value="10554" data-desc="SERUM CORPORAL HIDRATANTE 320 ML." data-pieza="48" data-cajas="120">10554 - SERUM HIDRATANTE</option>
       <option value="10555" data-desc="SERUM CORPORAL ACLARANTE 320 ML." data-pieza="48" data-cajas="120">10555 - SERUM ACLARANTE</option>
@@ -104,13 +115,13 @@ input.mono{font-family:ui-monospace,Consolas,monospace}
     <div id="loteModeWrap" style="display:none;margin-top:6px">
       <label>Modo de Lote</label>
       <div class="inline">
-        <label class="inline"><input type="radio" name="loteMode" id="modeAuto" value="auto" onchange="updateLoteControls()"> Auto (WGH0 + 4 dígitos)</label>
-        <label class="inline"><input type="radio" name="loteMode" id="modeManual" value="manual" onchange="updateLoteControls()"> Manual</label>
+        <label class="inline"><input type="radio" name="loteMode" id="modeAuto" value="auto"> Auto (WGH0 + 4 dígitos)</label>
+        <label class="inline"><input type="radio" name="loteMode" id="modeManual" value="manual"> Manual</label>
       </div>
       <div id="autoLoteGroup" class="row" style="margin-top:8px;display:none">
         <div>
           <label>Últimos 4 dígitos</label>
-          <input id="last4" maxlength="4" class="mono" placeholder="Ej. 6037" oninput="applyAutoLote()" onchange="applyAutoLote()">
+          <input id="last4" maxlength="4" class="mono" placeholder="Ej. 6037">
         </div>
         <div>
           <div class="muted">Prefijo aplicado automáticamente:</div>
@@ -132,18 +143,18 @@ input.mono{font-family:ui-monospace,Consolas,monospace}
     <label>Descripción</label><input id="descripcion" readonly>
 
     <label>Lote</label>
-    <input id="lote" class="mono" placeholder="Ej. WGH01234" oninput="generarEtiqueta();saveState()" onchange="generarEtiqueta();saveState()">
+    <input id="lote" class="mono" placeholder="Ej. WGH01234">
 
     <label>Caducidad</label>
     <div class="row">
-      <select id="cad_dia" onchange="generarEtiqueta();saveState()"></select>
-      <select id="cad_mes" onchange="generarEtiqueta();saveState()"></select>
-      <select id="cad_anio" onchange="generarEtiqueta();saveState()"></select>
+      <select id="cad_dia"></select>
+      <select id="cad_mes"></select>
+      <select id="cad_anio"></select>
     </div>
 
     <div class="inline">
-      <button class="btn" type="button" onclick="printWithUID(event)">Imprimir en tamaño carta</button>
-      <button class="btn" type="button" onclick="exportarPDF(event)">Exportar a PDF</button>
+      <button class="btn" id="btnImprimir" type="button">Imprimir en tamaño carta</button>
+      <button class="btn" id="btnPDF" type="button">Exportar a PDF</button>
     </div>
   </div>
 </div>
@@ -172,153 +183,211 @@ input.mono{font-family:ui-monospace,Consolas,monospace}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
 
 <script>
-/* ===== Helpers & estado ===== */
-const wghProducts=new Set(['10558','10559','10560','10561','10562','10563']);
-const digitsOnly=s=>(s||'').replace(/\D+/g,'');
-const $=id=>document.getElementById(id);
+/* ========= Helpers ========= */
+const wghProducts = new Set(['10558','10559','10560','10561','10562','10563']);
+const digitsOnly = s => (s||'').replace(/\D+/g,'');
+const $ = id => document.getElementById(id);
 
-/* Persistencia */
+/* ===== Ordenar catálogo por código ===== */
+function sortSelectByValue(id){
+  const sel = $(id);
+  if(!sel) return;
+  const keep = sel.value;
+  const opts = [...sel.querySelectorAll('option')].slice(1);
+  opts.sort((a,b)=>Number(a.value)-Number(b.value));
+  opts.forEach(o=>sel.appendChild(o));
+  if (keep) sel.value = keep;
+}
+
+/* ===== Persistencia ===== */
+const K = 'ksk_state_v3';
 function saveState(){
-  const st={
-    picker:$('picker').value, producto:$('producto').value,
-    codigo:$('codigo').value, desc:$('descripcion').value,
-    cajas:$('cajas').value, pieza:$('pieza').value, pz:$('pz').value, total:$('totalPiezas').value,
-    lote:$('lote').value, d:$('cad_dia').value, m:$('cad_mes').value, y:$('cad_anio').value,
-    modeAuto:$('modeAuto')?$('modeAuto').checked:false, last4:$('last4')?$('last4').value:''
+  const s = {
+    picker: $('picker').value,
+    producto: $('producto').value,
+    codigo: $('codigo').value,
+    desc: $('descripcion').value,
+    cajas: $('cajas').value,
+    pieza: $('pieza').value,
+    pz: $('pz').value,
+    total: $('totalPiezas').value,
+    lote: $('lote').value,
+    dia: $('cad_dia').value, mes: $('cad_mes').value, anio: $('cad_anio').value,
+    modeAuto: $('modeAuto')?.checked || false,
+    last4: $('last4')?.value || ''
   };
-  localStorage.setItem('ksk_state', JSON.stringify(st));
+  localStorage.setItem(K, JSON.stringify(s));
 }
 function restoreState(){
   try{
-    const st=JSON.parse(localStorage.getItem('ksk_state')||'null'); if(!st) return;
-    $('picker').value=st.picker||$('picker').value;
-    $('producto').value=st.producto||'';
-    $('codigo').value=st.codigo||'';
-    $('descripcion').value=st.desc||'';
-    $('cajas').value=st.cajas||'';
-    $('pieza').value=st.pieza||'';
-    $('pz').value=st.pz||'';
-    $('totalPiezas').value=st.total||'';
-    $('lote').value=st.lote||'';
-    $('cad_dia').value=st.d||'';
-    $('cad_mes').value=st.m||'';
-    $('cad_anio').value=st.y||'';
-    if (wghProducts.has(st.producto||'')){
-      document.getElementById('loteModeWrap').style.display='block';
-      $('modeAuto').checked=!!st.modeAuto;
-      $('modeManual').checked=!st.modeAuto;
-      document.getElementById('autoLoteGroup').style.display=st.modeAuto?'grid':'none';
-      if ($('last4')) $('last4').value=st.last4||'';
-    }
+    const s = JSON.parse(localStorage.getItem(K)||'{}');
+    if(!s) return;
+    if(s.picker) $('picker').value = s.picker;
+    if(s.producto) $('producto').value = s.producto;
+    $('codigo').value = s.codigo||'';
+    $('descripcion').value = s.desc||'';
+    $('cajas').value = s.cajas||'';
+    $('pieza').value = s.pieza||'';
+    $('pz').value = s.pz||'';
+    $('totalPiezas').value = s.total||'';
+    $('lote').value = s.lote||'';
+    if(s.dia) $('cad_dia').value = s.dia;
+    if(s.mes) $('cad_mes').value = s.mes;
+    if(s.anio) $('cad_anio').value = s.anio;
+    if(s.modeAuto) $('modeAuto').checked = true;
+    if(s.last4) $('last4').value = s.last4;
   }catch(e){}
 }
 
-/* UID */
-let currentUID='';
-function todayKey(){const d=new Date();return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;}
-function nextUID(){const k='ksk_folio_'+todayKey();const n=(+localStorage.getItem(k)||0)+1;localStorage.setItem(k,n);return `${todayKey()}-${String(n).padStart(4,'0')}`;}
-function ensureUID(){if(!currentUID) currentUID=nextUID();}
+/* UID (folio único por día) */
+let currentUID = '';
+function todayKey(){ const d=new Date(); return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`; }
+function nextUID(){ const k='ksk_folio_'+todayKey(); const n=(+localStorage.getItem(k)||0)+1; localStorage.setItem(k,n); return `${todayKey()}-${String(n).padStart(4,'0')}`; }
+function ensureUID(){ if(!currentUID) currentUID = nextUID(); }
 
-/* Caducidad */
+/* Caducidad (selects) */
 function poblarSelects(){
-  const dSel=$('cad_dia'),mSel=$('cad_mes'),ySel=$('cad_anio');
-  dSel.innerHTML='<option value="">Día</option>';for(let d=1;d<=31;d++)dSel.innerHTML+=`<option value="${d}">${d}</option>`;
-  mSel.innerHTML='<option value="">Mes</option>';for(let m=1;m<=12;m++)mSel.innerHTML+=`<option value="${m}">${m}</option>`;
-  const y0=new Date().getFullYear();ySel.innerHTML='<option value="">Año</option>';for(let y=y0;y<=y0+15;y++)ySel.innerHTML+=`<option value="${y}">${y}</option>`;
-  const now=new Date();dSel.value=String(now.getDate());mSel.value=String(now.getMonth()+1);ySel.value=String(now.getFullYear());
+  const dSel=$('cad_dia'), mSel=$('cad_mes'), ySel=$('cad_anio');
+  dSel.innerHTML='<option value="">Día</option>'; for(let d=1; d<=31; d++) dSel.innerHTML+=`<option value="${d}">${d}</option>`;
+  mSel.innerHTML='<option value="">Mes</option>'; for(let m=1; m<=12; m++) mSel.innerHTML+=`<option value="${m}">${m}</option>`;
+  const y0=new Date().getFullYear(); ySel.innerHTML='<option value="">Año</option>'; for(let y=y0; y<=y0+15; y++) ySel.innerHTML+=`<option value="${y}">${y}</option>`;
+  const now=new Date(); dSel.value=String(now.getDate()); mSel.value=String(now.getMonth()+1); ySel.value=String(now.getFullYear());
 }
 
-/* Producto -> autorrelleno */
+/* Autorrelleno de producto */
 function rellenarProducto(){
-  const sel=$('producto');const opt=sel.options[sel.selectedIndex];if(!opt||!opt.value){generarEtiqueta();return;}
-  const piezas=+opt.dataset.pieza||0;const cajas=+opt.dataset.cajas||0;const pzTar=piezas*cajas;
-  $('codigo').value=opt.value; $('descripcion').value=opt.dataset.desc||'';
-  $('cajas').value=cajas||''; $('pieza').value=piezas||''; $('pz').value=pzTar||''; $('totalPiezas').value=pzTar||'';
-  updateLoteControls(); saveState(); generarEtiqueta();
+  const sel=$('producto'); const opt=sel.options[sel.selectedIndex]; if(!opt || !opt.value) return;
+  const piezasNum=parseInt(opt.dataset.pieza||'0',10);
+  const cajasNum=parseInt(opt.dataset.cajas||'0',10);
+  const pzTar=piezasNum*cajasNum;
+
+  $('codigo').value=opt.value;
+  $('descripcion').value=opt.dataset.desc||'';
+  $('cajas').value=cajasNum?String(cajasNum):'';
+  $('pieza').value=piezasNum?String(piezasNum):'';
+  $('pz').value=pzTar?String(pzTar):'';
+  $('totalPiezas').value=pzTar?String(pzTar):'';
+
+  updateLoteControls();
+  generarEtiqueta();
+  saveState();
 }
 
-/* Lote predictivo */
+/* Lote auto/manual */
 function updateLoteControls(){
-  const val=$('producto').value,wrap=$('loteModeWrap'),group=$('autoLoteGroup'),loteIn=$('lote');
-  const mA=$('modeAuto'),mM=$('modeManual');
+  const val=$('producto').value, wrap=$('loteModeWrap'), group=$('autoLoteGroup'), loteIn=$('lote');
+  const mA=$('modeAuto'), mM=$('modeManual');
   if(wghProducts.has(val)){
-    wrap.style.display='block'; if(!mA.checked&&!mM.checked) mA.checked=true;
-    const isAuto=mA.checked; group.style.display=isAuto?'grid':'none'; loteIn.readOnly=isAuto;
+    wrap.style.display='block';
+    if(!mA.checked && !mM?.checked) mA.checked=true;
+    const isAuto=mA.checked;
+    group.style.display=isAuto?'grid':'none';
+    loteIn.readOnly=isAuto;
     if(isAuto) applyAutoLote();
   }else{
-    wrap.style.display='none'; if ($('last4')) $('last4').value=''; if ($('previewAuto')) $('previewAuto').value='';
-    if(mA&&mM){mA.checked=false;mM.checked=true;} loteIn.readOnly=false;
+    wrap.style.display='none';
+    $('last4')&&($('last4').value=''); $('previewAuto')&&($('previewAuto').value='');
+    if(mA) mA.checked=false; if(mM) mM.checked=true;
+    loteIn.readOnly=false;
   }
   saveState();
 }
 function applyAutoLote(){
   const l4=$('last4'); if(!l4) return;
   const four=digitsOnly(l4.value).slice(0,4); l4.value=four;
-  const lote='WGH0'+four.padStart(4,'0'); if($('previewAuto')) $('previewAuto').value=lote;
-  if($('modeAuto').checked) $('lote').value=lote;
-  saveState(); generarEtiqueta();
+  const lote='WGH0'+four.padStart(4,'0');
+  $('previewAuto')&&($('previewAuto').value=lote);
+  if($('modeAuto')?.checked) $('lote').value=lote;
+  generarEtiqueta();
+  saveState();
 }
 
-/* QR */
+/* Payload para QR */
 function buildPayload(){
   ensureUID();
-  const SEP='\t',END='\r';
-  const d=$('cad_dia').value,m=$('cad_mes').value,y=$('cad_anio').value;
+  const SEP='\t', END='\r';
+  const d=$('cad_dia').value, m=$('cad_mes').value, y=$('cad_anio').value;
   const cad=(d&&m&&y)?`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`:'';
-  return [ $('picker').value,currentUID,$('codigo').value,$('descripcion').value,$('lote').value,cad,$('cajas').value,$('pieza').value,$('pz').value ].join(SEP)+END;
+  return [
+    $('picker').value, currentUID, $('codigo').value, $('descripcion').value,
+    $('lote').value, cad, $('cajas').value, $('pieza').value, $('pz').value
+  ].join(SEP)+END;
 }
+
+/* Pintar etiqueta y QR */
+let qr;
 function makeQR(text){
   const node=$('qrcode'); node.innerHTML='';
-  if(window.QRCode){
-    new QRCode(node,{text,width:210,height:210,correctLevel:QRCode.CorrectLevel.M});
-  }else{
-    const img=new Image(); img.width=210; img.height=210; img.alt='QR';
-    img.src='https://api.qrserver.com/v1/create-qr-code/?size=210x210&data='+encodeURIComponent(text);
-    node.appendChild(img);
+  try{
+    qr=new QRCode(node,{text, width:220, height:220, correctLevel:QRCode.CorrectLevel.M});
+  }catch(e){
+    node.innerHTML='<div style="font:12px monospace">QR error</div>';
   }
 }
-
-/* Render etiqueta */
 function generarEtiqueta(){
-  const d=$('cad_dia').value,m=$('cad_mes').value,y=$('cad_anio').value;
+  const d=$('cad_dia').value, m=$('cad_mes').value, y=$('cad_anio').value;
   $('e_caducidad').textContent=(d&&m&&y)?`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`:'';
-  const pcs=+($('pieza').value||0),cjs=+($('cajas').value||0),pzt=cjs*pcs; $('pz').value=pzt||''; $('totalPiezas').value=pzt||'';
 
-  const sel=$('producto'); const prodTxt= sel.value? sel.options[sel.selectedIndex].text : '';
-  $('e_picker').textContent=$('picker').value; $('e_producto').textContent=prodTxt;
-  $('e_codigo').textContent=$('codigo').value; $('e_descripcion').textContent=$('descripcion').value;
-  $('e_cajas').textContent=$('cajas').value; $('e_pieza').textContent=$('pieza').value;
-  $('e_pz').textContent=$('pz').value; $('e_totalPiezas').textContent=$('totalPiezas').value;
+  const pcs=parseInt($('pieza').value||'0',10), cjs=parseInt($('cajas').value||'0',10), pzt=cjs*pcs;
+  $('pz').value=pzt||''; $('totalPiezas').value=pzt||'';
+
+  const sel=$('producto'); const prodTxt= sel.value ? sel.options[sel.selectedIndex].text : '';
+  $('e_picker').textContent=$('picker').value;
+  $('e_producto').textContent=prodTxt;
+  $('e_codigo').textContent=$('codigo').value;
+  $('e_descripcion').textContent=$('descripcion').value;
+  $('e_cajas').textContent=$('cajas').value;
+  $('e_pieza').textContent=$('pieza').value;
+  $('e_pz').textContent=$('pz').value;
+  $('e_totalPiezas').textContent=$('totalPiezas').value;
   $('e_lote').textContent=$('lote').value;
   $('e_fecha').textContent=new Date().toLocaleDateString('es-MX',{year:'numeric',month:'2-digit',day:'2-digit'});
+
   $('etiqueta').style.display='block';
   makeQR(buildPayload());
 }
 
 /* Imprimir / PDF */
+function triggerPrintNow(){
+  // Llamada directa + rAF ayuda en Android/iOS
+  requestAnimationFrame(()=>{ window.focus(); window.print(); });
+}
 function printWithUID(e){
-  e && e.preventDefault(); ensureUID(); generarEtiqueta(); saveState();
-  window.print(); // directo para que Android no lo bloquee
+  e.preventDefault();
+  ensureUID(); generarEtiqueta(); saveState();
+  triggerPrintNow();
 }
 function exportarPDF(e){
-  e && e.preventDefault(); ensureUID(); generarEtiqueta(); saveState();
-  if(typeof html2pdf==='undefined'){ return window.print(); }
+  e.preventDefault(); ensureUID(); generarEtiqueta(); saveState();
+  if(typeof html2pdf==='undefined'){ alert('No se pudo cargar html2pdf.'); return; }
   const nombre=`${$('codigo').value||'PROD'}_${$('e_fecha').textContent.replaceAll('/','-')}.pdf`;
-  html2pdf().set({margin:0,filename:nombre,image:{type:'jpeg',quality:1},html2canvas:{scale:2},jsPDF:{unit:'cm',format:'letter',orientation:'portrait'}})
-            .from($('etiqueta')).save();
+  html2pdf().set({
+    margin:0, filename:nombre,
+    image:{type:'jpeg',quality:1},
+    html2canvas:{scale: (window.devicePixelRatio>2?1.2:1.6)}, /* más estable en móvil */
+    jsPDF:{unit:'cm',format:'letter',orientation:'portrait'}
+  }).from($('etiqueta')).save();
 }
 
-/* Boot: espera a que carguen librerías (móvil) */
+/* Listeners */
 window.addEventListener('load', ()=>{
   poblarSelects();
-  restoreState();           // recuperar lo escaneado si recargó
+  sortSelectByValue('producto');        // ordenar catálogo ascendente
+  restoreState();
+  // Si había producto guardado, aplica lógicas:
   if ($('producto').value) updateLoteControls();
   generarEtiqueta();
-  // Guardar ante cualquier cambio de inputs/selects
-  document.querySelectorAll('input,select').forEach(el=>{
-    el.addEventListener('change', saveState);
-    el.addEventListener('input', saveState);
-  });
+
+  $('producto').addEventListener('change', rellenarProducto);
+  $('modeAuto')?.addEventListener('change', updateLoteControls);
+  $('modeManual')?.addEventListener('change', updateLoteControls);
+  $('last4') && $('last4').addEventListener('input', applyAutoLote);
+
+  // guardar cambios clave
+  ['picker','lote','cad_dia','cad_mes','cad_anio'].forEach(id=>$(id).addEventListener('change', ()=>{ generarEtiqueta(); saveState(); }));
+
+  $('btnImprimir').addEventListener('click', printWithUID);
+  $('btnPDF').addEventListener('click', exportarPDF);
 });
 </script>
 </body>
