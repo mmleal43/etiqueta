@@ -96,10 +96,10 @@ input.mono{ font-family:ui-monospace,Consolas,monospace }
       <option value="">-- Selecciona un producto --</option>
       <!-- Catálogo ordenado por código -->
       <option value="10518" data-desc="ROCAINOL CREMA ACCIÓN TÉRMICA 150G" data-pieza="12" data-cajas="1">10518 - ROCAINOL TÉRMICA</option>
-      <option value="10554" data-desc="SERUM CORPORAL HIDRATANTE 320 ML." data-pieza="12" data-cajas="120">10554 - SERUM HIDRATANTE</option>
-      <option value="10555" data-desc="SERUM CORPORAL ACLARANTE 320 ML." data-pieza="12" data-cajas="120">10555 - SERUM ACLARANTE</option>
-      <option value="10556" data-desc="SERUM CORPORAL REAFIRMANTE 320 ML." data-pieza="12" data-cajas="120">10556 - SERUM REAFIRMANTE</option>
-      <option value="10557" data-desc="VITACILINA SUEROX CORPORAL DE 300ML" data-pieza="12" data-cajas="120">10557 - VITACILINA SUEROX</option>
+      <option value="10554" data-desc="SERUM CORPORAL HIDRATANTE 320 ML." data-pieza="48" data-cajas="120">10554 - SERUM HIDRATANTE</option>
+      <option value="10555" data-desc="SERUM CORPORAL ACLARANTE 320 ML." data-pieza="48" data-cajas="120">10555 - SERUM ACLARANTE</option>
+      <option value="10556" data-desc="SERUM CORPORAL REAFIRMANTE 320 ML." data-pieza="48" data-cajas="120">10556 - SERUM REAFIRMANTE</option>
+      <option value="10557" data-desc="VITACILINA SUEROX CORPORAL DE 300ML" data-pieza="48" data-cajas="120">10557 - VITACILINA SUEROX</option>
       <option value="10558" data-desc="EMULSIÓN CORPORAL DERMATOLÓGICA ATOPICALM 400ML" data-pieza="12" data-cajas="60">10558 - EMULSIÓN ATOPICALM</option>
       <option value="10559" data-desc="CREMA CORPORAL DERMATOLÓGICA ATOPI CALM 300G" data-pieza="12" data-cajas="80">10559 - CREMA ATOPI CALM</option>
       <option value="10560" data-desc="EMULSIÓN DÍA BE CALM 400ML" data-pieza="12" data-cajas="60">10560 - EMULSIÓN BE CALM</option>
@@ -129,8 +129,13 @@ input.mono{ font-family:ui-monospace,Consolas,monospace }
 
     <div class="row">
       <div><label>Código de Producto</label><input id="codigo" readonly class="mono"></div>
-      <div><label>Cajas por Tarima</label><input id="cajas" readonly class="mono"></div>
-      <div><label>Pz por Caja</label><input id="pieza" readonly class="mono"></div>
+
+      <!-- AHORA EDITABLE -->
+      <div><label>Cajas por Tarima</label><input id="cajas" class="mono" inputmode="numeric" placeholder="Ej. 60"></div>
+
+      <!-- AHORA EDITABLE (por si también te sirve) -->
+      <div><label>Pz por Caja</label><input id="pieza" class="mono" inputmode="numeric" placeholder="Ej. 12"></div>
+
       <div><label>Pz por Tarima</label><input id="pz" readonly class="mono"></div>
     </div>
 
@@ -227,6 +232,8 @@ function saveState(){
     picker: $('picker').value,
     producto: $('producto').value,
     lote: $('lote').value,
+    cajas: $('cajas').value,
+    pieza: $('pieza').value,
     d: $('cad_dia').value, m: $('cad_mes').value, y: $('cad_anio').value
   };
   sessionStorage.setItem('ksk_state', JSON.stringify(st));
@@ -237,11 +244,15 @@ function restoreState(){
   try{
     const st = JSON.parse(raw);
     if (st.picker) $('picker').value = st.picker;
-    if (st.producto) { $('producto').value = st.producto; rellenarProducto(); }
+    if (st.producto) { $('producto').value = st.producto; }
+    if (st.cajas) $('cajas').value = st.cajas;
+    if (st.pieza) $('pieza').value = st.pieza;
+    if (st.producto) rellenarProducto(false); // no pisar cantidades si vienen de estado
     if (st.lote) $('lote').value = st.lote;
     if (st.d) $('cad_dia').value = st.d;
     if (st.m) $('cad_mes').value = st.m;
     if (st.y) $('cad_anio').value = st.y;
+    handleQuantChange(); // recálculo
   }catch(e){}
 }
 
@@ -254,23 +265,35 @@ function poblarSelects(){
   const now=new Date(); dSel.value=String(now.getDate()); mSel.value=String(now.getMonth()+1); ySel.value=String(now.getFullYear());
 }
 
-/* Autorrelleno de producto */
-function rellenarProducto(){
+/* Autorrelleno de producto
+   overwriteQuant = true para cargar los defaults del producto,
+   false para mantener lo que ya escribió el usuario. */
+function rellenarProducto(overwriteQuant = true){
   const sel=$('producto'); const opt=sel.options[sel.selectedIndex]; if(!opt || !opt.value) return;
-  const piezasNum=parseInt(opt.dataset.pieza||'0',10);
-  const cajasNum=parseInt(opt.dataset.cajas||'0',10);
-  const pzTar=piezasNum*cajasNum;
 
-  $('codigo').value=opt.value;
-  $('descripcion').value=opt.dataset.desc||'';
-  $('cajas').value=cajasNum?String(cajasNum):'';
-  $('pieza').value=piezasNum?String(piezasNum):'';
-  $('pz').value=pzTar?String(pzTar):'';
-  $('totalPiezas').value=pzTar?String(pzTar):'';
+  $('codigo').value = opt.value;
+  $('descripcion').value = opt.dataset.desc || '';
+
+  if (overwriteQuant){
+    $('cajas').value = opt.dataset.cajas || '';
+    $('pieza').value = opt.dataset.pieza || '';
+  }
 
   updateLoteControls();
+  handleQuantChange();  // recalcula pz/total
   generarEtiqueta();
   saveState();
+}
+
+/* Recalcular pz por tarima y total, sanitizando números */
+function handleQuantChange(){
+  const cajas = parseInt(digitsOnly($('cajas').value)||'0',10);
+  const pieza = parseInt(digitsOnly($('pieza').value)||'0',10);
+  $('cajas').value = cajas ? String(cajas) : '';
+  $('pieza').value = pieza ? String(pieza) : '';
+  const pzt = cajas * pieza;
+  $('pz').value = pzt ? String(pzt) : '';
+  $('totalPiezas').value = pzt ? String(pzt) : '';
 }
 
 /* Lote auto/manual */
@@ -349,8 +372,8 @@ function generarEtiqueta(){
   const d=$('cad_dia').value, m=$('cad_mes').value, y=$('cad_anio').value;
   $('e_caducidad').textContent=(d&&m&&y)?`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`:'';
 
-  const pcs=parseInt($('pieza').value||'0',10), cjs=parseInt($('cajas').value||'0',10), pzt=cjs*pcs;
-  $('pz').value=pzt||''; $('totalPiezas').value=pzt||'';
+  // Asegurar recálculo por si vino de estado
+  handleQuantChange();
 
   const sel=$('producto'); const prodTxt= sel.value ? sel.options[sel.selectedIndex].text : '';
   $('e_picker').textContent=$('picker').value;
@@ -371,7 +394,6 @@ function generarEtiqueta(){
 /* Imprimir / PDF */
 function printWithUID(e){
   e.preventDefault(); ensureUID(); generarEtiqueta();
-  // En Android/Chrome ayuda un micro-retardo tras interacción de usuario
   setTimeout(()=>window.print(), 10);
 }
 function exportarPDF(e){
@@ -389,9 +411,15 @@ function exportarPDF(e){
 document.addEventListener('DOMContentLoaded',()=>{
   poblarSelects();
   restoreState();
-  $('producto').addEventListener('change', rellenarProducto);
+
+  $('producto').addEventListener('change', ()=>rellenarProducto(true));
   $('picker').addEventListener('change', ()=>{ generarEtiqueta(); saveState(); });
   $('lote').addEventListener('input', ()=>{ generarEtiqueta(); saveState(); });
+
+  // <- NUEVOS: cantidades editables
+  $('cajas').addEventListener('input', ()=>{ handleQuantChange(); generarEtiqueta(); saveState(); });
+  $('pieza').addEventListener('input', ()=>{ handleQuantChange(); generarEtiqueta(); saveState(); });
+
   $('cad_dia').addEventListener('change', ()=>{ generarEtiqueta(); saveState(); });
   $('cad_mes').addEventListener('change', ()=>{ generarEtiqueta(); saveState(); });
   $('cad_anio').addEventListener('change', ()=>{ generarEtiqueta(); saveState(); });
@@ -404,8 +432,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   $('btnPDF').addEventListener('click', exportarPDF);
 
   generarEtiqueta(); // primera vista
-  // Calentar la carga del QR por si el usuario imprime rápido
-  ensureQRLibs();
+  ensureQRLibs();    // precarga QR
 });
 </script>
 </body>
